@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vibe-framework"
+version = "1.7.0"
+description = "Vibe Enterprise Framework - Python Library + CLI"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Vibe Enterprise Framework" }]
+# Ponytail: zero mandatory runtime deps. Core stays stdlib-only.
+# pydantic is opt-in for users who want typed ContextResult models.
+dependencies = []
+
+[project.optional-dependencies]
+http = ["requests>=2.31.0"]
+env = ["python-dotenv>=1.0.0"]
+pydantic = ["pydantic>=2.0.0"]
+dev = ["requests>=2.31.0", "python-dotenv>=1.0.0", "build>=1.0", "pytest>=7.0", "pytest-cov>=4.0.0"]
+all = ["requests>=2.31.0", "python-dotenv>=1.0.0", "pydantic>=2.0.0"]
+
+[project.scripts]
+vibe-framework = "vibe_framework.__main__:main"
+vibe-tools = "vibe_framework.__main__:main"
+vibe-warm = "vibe_framework.__main__:warm"
+vibe-dashboard = "vibe_framework.__main__:serve"
+
+[tool.setuptools]
+zip-safe = true
+
+[tool.setuptools.packages.find]
+include = ["vibe_framework*"]
+
+[tool.setuptools.package-data]
+vibe_framework = ["*.md"]
+
+[tool.pytest.ini_options]
+# Restrict collection to the directories this project owns; third-party
+# dependency tests are not part of this package.
+testpaths = ["tests", "vibe_framework/tests", "tools"]
+norecursedirs = [
+    "node_modules",
+    "build",
+    "dist",
+    "*.egg",
+    ".*",
+    "_darcs",
+    "CVS",
+    "venv",
+    "{arch}",
+]

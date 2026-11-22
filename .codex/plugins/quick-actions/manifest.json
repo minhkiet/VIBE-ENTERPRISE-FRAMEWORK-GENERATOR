@@ -1,0 +1,136 @@
+{
+  "name": "vibe-framework-quick-actions",
+  "version": "1.0.0",
+  "description": "Quick actions for Vibe Framework operations",
+  "author": "Vibe Enterprise Framework",
+  "activationEvents": [
+    "onCommand:vibe-framework.warm",
+    "onCommand:vibe-framework.stats",
+    "onCommand:vibe-framework.clear-cache",
+    "onCommand:vibe-framework.scan",
+    "onCommand:vibe-framework.dashboard",
+    "onCommand:vibe-framework.dump-context"
+  ],
+  "main": "index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vibe-framework.warm",
+        "title": "Vibe Framework: Warm Cache",
+        "category": "Vibe Framework",
+        "description": "Warm up framework cache (scan + persist)"
+      },
+      {
+        "command": "vibe-framework.stats",
+        "title": "Vibe Framework: Show Stats",
+        "category": "Vibe Framework",
+        "description": "Show framework statistics"
+      },
+      {
+        "command": "vibe-framework.clear-cache",
+        "title": "Vibe Framework: Clear Cache",
+        "category": "Vibe Framework",
+        "description": "Clear framework cache"
+      },
+      {
+        "command": "vibe-framework.scan",
+        "title": "Vibe Framework: Scan Skills",
+        "category": "Vibe Framework",
+        "description": "Scan .cursor directory for skills and rules"
+      },
+      {
+        "command": "vibe-framework.dashboard",
+        "title": "Vibe Framework: Open Dashboard",
+        "category": "Vibe Framework",
+        "description": "Open framework dashboard in browser"
+      },
+      {
+        "command": "vibe-framework.dump-context",
+        "title": "Vibe Framework: Dump Context",
+        "category": "Vibe Framework",
+        "description": "Dump current session context to file"
+      },
+      {
+        "command": "vibe-framework.graph",
+        "title": "Vibe Framework: View Skill Graph",
+        "category": "Vibe Framework",
+        "description": "Open skill dependency graph visualization"
+      },
+      {
+        "command": "vibe-framework.index",
+        "title": "Vibe Framework: Rebuild Index",
+        "category": "Vibe Framework",
+        "description": "Rebuild skill index (INDEX.json + INDEX.md)"
+      },
+      {
+        "command": "vibe-framework.find-skills",
+        "title": "Vibe Framework: Find Skills",
+        "category": "Vibe Framework",
+        "description": "Find skills matching a query"
+      },
+      {
+        "command": "vibe-framework.code-graph",
+        "title": "Vibe Framework: Code Graph",
+        "category": "Vibe Framework",
+        "description": "Scan and view project code graph"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "vibe-framework.warm",
+          "when": "workspaceFolderExists"
+        },
+        {
+          "command": "vibe-framework.stats",
+          "when": "workspaceFolderExists"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "vibe-framework.dump-context",
+          "when": "editorTextFocus"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Vibe Framework",
+      "properties": {
+        "vibeFramework.rootPath": {
+          "type": "string",
+          "default": ".cursor",
+          "description": "Path to .cursor directory"
+        },
+        "vibeFramework.memoryPath": {
+          "type": "string",
+          "default": ".cache/memory.json",
+          "description": "Path to memory cache file"
+        },
+        "vibeFramework.dashboardPort": {
+          "type": "number",
+          "default": 8765,
+          "description": "Port for dashboard server"
+        },
+        "vibeFramework.autoWarm": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically warm cache on startup"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "vibe-framework.stats",
+        "key": "ctrl+shift+f1",
+        "mac": "cmd+shift+f1",
+        "when": "workspaceFolderExists"
+      },
+      {
+        "command": "vibe-framework.warm",
+        "key": "ctrl+shift+f2",
+        "mac": "cmd+shift+f2",
+        "when": "workspaceFolderExists"
+      }
+    ]
+  }
+}

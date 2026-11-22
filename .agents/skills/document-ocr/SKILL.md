@@ -1,0 +1,26 @@
+---
+name: document-ocr
+description: "Alias: document-ocr skill"
+---
+
+# Alias: document-ocr
+
+**DEPRECATED**: This skill has been renamed to `util_document-ocr`.
+
+For backward compatibility, this alias redirects to the new skill.
+
+## Migration
+
+Update your code to use:
+`
+.cursor/skills/util_document-ocr/SKILL.md
+`
+
+## Auto-Redirect
+
+This alias is maintained for backward compatibility.
+The skill-registry will automatically redirect to the new name.
+
+---
+Auto-generated alias file
+Last updated: 2026-08-03

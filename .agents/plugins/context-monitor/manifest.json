@@ -1,0 +1,53 @@
+{
+  "name": "vibe-framework-context-monitor",
+  "version": "1.0.0",
+  "description": "Token budget analyzer, session memory inspector, and context routing telemetry",
+  "author": "Vibe Enterprise Framework",
+  "activationEvents": [
+    "onCommand:vibe-framework.context-monitor.stats",
+    "onCommand:vibe-framework.context-monitor.inspectPrompt",
+    "onCommand:vibe-framework.context-monitor.tokenBudget",
+    "onCommand:vibe-framework.context-monitor.redisStats",
+    "onCommand:vibe-framework.context-monitor.clearSession"
+  ],
+  "main": "index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vibe-framework.context-monitor.stats",
+        "title": "Vibe Framework: Session Memory Stats",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.context-monitor.inspectPrompt",
+        "title": "Vibe Framework: Inspect Context Prompt",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.context-monitor.tokenBudget",
+        "title": "Vibe Framework: Token Budget Analysis",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.context-monitor.redisStats",
+        "title": "Vibe Framework: Redis Observability",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.context-monitor.clearSession",
+        "title": "Vibe Framework: Clear Session Memory",
+        "category": "Vibe Framework"
+      }
+    ],
+    "configuration": {
+      "title": "Vibe Framework Context Monitor",
+      "properties": {
+        "vibeFramework.contextMonitor.maxTokens": {
+          "type": "number",
+          "default": 4000,
+          "description": "Default token budget threshold for context injection."
+        }
+      }
+    }
+  }
+}

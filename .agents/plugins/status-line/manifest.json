@@ -1,0 +1,57 @@
+{
+  "name": "vibe-framework-status-line",
+  "version": "1.0.0",
+  "description": "Real-time status bar monitor for Vibe Enterprise Framework",
+  "author": "Vibe Enterprise Framework",
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:vibe-framework.status-line.refresh",
+    "onCommand:vibe-framework.status-line.menu",
+    "onCommand:vibe-framework.status-line.toggle"
+  ],
+  "main": "index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vibe-framework.status-line.refresh",
+        "title": "Vibe Framework: Refresh Status Bar",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.status-line.menu",
+        "title": "Vibe Framework: Open Status Menu",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.status-line.toggle",
+        "title": "Vibe Framework: Toggle Status Bar Item",
+        "category": "Vibe Framework"
+      }
+    ],
+    "configuration": {
+      "title": "Vibe Framework Status Line",
+      "properties": {
+        "vibeFramework.statusLine.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to display the framework status bar item."
+        },
+        "vibeFramework.statusLine.refreshInterval": {
+          "type": "number",
+          "default": 30000,
+          "description": "Auto-refresh interval in milliseconds (default 30s)."
+        },
+        "vibeFramework.statusLine.showTokens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show memory token count in the status bar."
+        },
+        "vibeFramework.statusLine.showSkills": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show active skills count in the status bar."
+        }
+      }
+    }
+  }
+}

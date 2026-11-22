@@ -1,0 +1,37 @@
+{
+  "name": "vibe-framework-hackingtool",
+  "version": "0.2.0",
+  "description": "183+ pentesting and OSINT tools (nmap, nuclei, amass, subfinder, httpx, sherlock, sqlmap) wired into Cursor IDE & Claude Code",
+  "author": "Vibe Enterprise Framework & ARIACODEZ",
+  "activationEvents": [
+    "onCommand:vibe-framework.hackingtool.recon",
+    "onCommand:vibe-framework.hackingtool.portScan",
+    "onCommand:vibe-framework.hackingtool.vulnScan",
+    "onCommand:vibe-framework.hackingtool.listTools"
+  ],
+  "main": "index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vibe-framework.hackingtool.recon",
+        "title": "Vibe Framework Security: OSINT Recon",
+        "category": "Security"
+      },
+      {
+        "command": "vibe-framework.hackingtool.portScan",
+        "title": "Vibe Framework Security: Target Port Scan",
+        "category": "Security"
+      },
+      {
+        "command": "vibe-framework.hackingtool.vulnScan",
+        "title": "Vibe Framework Security: Vulnerability Scan",
+        "category": "Security"
+      },
+      {
+        "command": "vibe-framework.hackingtool.listTools",
+        "title": "Vibe Framework Security: List Available Tools",
+        "category": "Security"
+      }
+    ]
+  }
+}

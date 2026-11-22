@@ -1,0 +1,134 @@
+  ============================================================
+  Vibe Enterprise Framework - .gitignore
+  Generated for workspace: D:\PROJECTS\CURSORS\CURSOR ENTERPRISE FRAMEWORK GENERATOR
+  ============================================================
+
+  --- Git internals ---
+.git/
+.git/cursor/
+.git/filter-repo/
+
+  --- Cursor IDE artifacts ---
+!.cursor/AGENTS.md
+!.cursor/cursor.json
+!.cursor/INDEX.md
+!.cursor/PROJECT.md
+!.cursor/UTF8
+!.cursor/skills/
+.cursor/scripts/build/
+.cursor/scripts/dist/
+.cursor/scripts/**/*.pyc
+.cursor/scripts/**/*.pyz
+.cursor/scripts/*.zip
+.cursor/scripts/*.pkg
+.cursor/scripts/*.exe
+.cursor/scripts/*.toc
+.cursor/agents/
+.cursor/cache/
+.cursor/commands/
+.cursor/hooks/
+.cursor/knowledge/
+.cursor/memory/
+.cursor/prompts/
+.cursor/references/
+.cursor/rules/
+.cursor/templates/
+.cursor/workflows/
+.cursor/scripts/embedding-builder/
+.cursor/scripts/knowledge-compiler/
+.cursor/scripts/memory-builder/
+.cursor/scripts/project-index-builder/
+.cursor/scripts/weknora/
+
+  --- Python build / package artifacts ---
+.venv/
+venv/
+build/
+dist/
+.coverage
+vibe_framework/__pycache__/
+vibe_framework/*.egg-info/
+vibe_framework/review/
+vibe_framework/tests/
+vibe_framework/utils/__pycache__/
+**/__pycache__/
+*.pyc
+*.egg-info/
+vibe_framework_web/dist/
+vibe_framework_web/node_modules/
+vibe_framework_web/scripts/
+vibe_framework_web/*.tsbuildinfo
+*.tsbuildinfo
+
+  --- .NET build artifacts ---
+cursor-setup-gui/bin/
+cursor-setup-gui/obj/
+cursor-setup-gui-publish/
+
+  --- Installer / release artifacts ---
+cursor-setup.exe
+cursor-setup-py.exe
+cursor-setup-gui.exe
+cursor-setup-gui-publish/
+cursor-setup.spec
+cursor-setup.zip
+vibe-setup.zip
+cursor-setup-gui-publish/
+
+  --- Build scripts (generated / CI output) ---
+build_setup.bat
+build_setup.ps1
+publish-release.ps1
+
+  --- Screenshots (dev artifacts) ---
+screenshots/page-*.png
+screenshots/learn-*.png
+screenshots/modal-*.png
+screenshots/nav-*.png
+screenshots/prompts*.png
+
+  --- Dist / release output ---
+dist/
+cursor-setup-gui-publish/
+
+  --- Test artifacts ---
+test-cases/*.pdf
+test-cases/batcuclinhso.pdf
+
+  --- Local automation profiles / temp ---
+.cache/
+
+  --- Cursor IDE settings (local-only) ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+  --- OS artifacts ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+~$*
+
+  --- Editor artifacts ---
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+.vs/
+*.sublime-*
+
+  --- Log files ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+/cursor-setup-gui-wpf/bin
+/cursor-setup-gui-wpf/obj
+/vibe-setup-gui-wpf/bin
+/vibe-setup-gui-wpf/obj

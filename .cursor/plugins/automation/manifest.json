@@ -1,0 +1,64 @@
+{
+  "name": "vibe-framework-automation",
+  "version": "1.0.0",
+  "description": "Automated workflows, background auto-indexing, git hooks, and TDD quality gates",
+  "author": "Vibe Enterprise Framework",
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:vibe-framework.automation.installHooks",
+    "onCommand:vibe-framework.automation.verifyGates",
+    "onCommand:vibe-framework.automation.runTdd",
+    "onCommand:vibe-framework.automation.toggleAutoWarm",
+    "onCommand:vibe-framework.automation.syncAllAgents"
+  ],
+  "main": "index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vibe-framework.automation.installHooks",
+        "title": "Vibe Framework: Install Git Quality Hooks",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.automation.verifyGates",
+        "title": "Vibe Framework: Verify Quality Gates",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.automation.runTdd",
+        "title": "Vibe Framework: Run TDD Test Suite",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.automation.toggleAutoWarm",
+        "title": "Vibe Framework: Toggle Auto-Warm on Save",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.automation.syncAllAgents",
+        "title": "Vibe Framework: Sync Cross-Agent Ecosystems",
+        "category": "Vibe Framework"
+      }
+    ],
+    "configuration": {
+      "title": "Vibe Framework Automation",
+      "properties": {
+        "vibeFramework.automation.autoWarmOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically warm and re-index cache when skill or rule files are saved."
+        },
+        "vibeFramework.automation.debounceMs": {
+          "type": "number",
+          "default": 1500,
+          "description": "Debounce delay in ms before triggering auto-warm on file changes."
+        },
+        "vibeFramework.automation.enforceTdd": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enforce automated test passing before allowing commits."
+        }
+      }
+    }
+  }
+}

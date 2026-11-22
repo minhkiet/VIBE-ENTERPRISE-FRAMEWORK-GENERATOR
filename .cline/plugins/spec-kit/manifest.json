@@ -1,0 +1,43 @@
+{
+  "name": "vibe-framework-spec-kit",
+  "version": "1.0.0",
+  "description": "Spec-Driven Development (SDD) workbench for Vibe Enterprise Framework",
+  "author": "Vibe Enterprise Framework",
+  "activationEvents": [
+    "onCommand:vibe-framework.spec-kit.init",
+    "onCommand:vibe-framework.spec-kit.list",
+    "onCommand:vibe-framework.spec-kit.status",
+    "onCommand:vibe-framework.spec-kit.validate",
+    "onCommand:vibe-framework.spec-kit.constitution"
+  ],
+  "main": "index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vibe-framework.spec-kit.init",
+        "title": "Vibe Framework: New Feature Specification (SDD)",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.spec-kit.list",
+        "title": "Vibe Framework: List All Specifications",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.spec-kit.status",
+        "title": "Vibe Framework: Feature Spec Status",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.spec-kit.validate",
+        "title": "Vibe Framework: Validate Specification",
+        "category": "Vibe Framework"
+      },
+      {
+        "command": "vibe-framework.spec-kit.constitution",
+        "title": "Vibe Framework: View Project Constitution",
+        "category": "Vibe Framework"
+      }
+    ]
+  }
+}

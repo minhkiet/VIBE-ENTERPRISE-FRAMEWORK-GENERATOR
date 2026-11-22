@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frontend Craft Review: Dials thực chiến</title>
+  <meta name="description" content="Trang review craft frontend với ba dials điều khiển bố cục, chuyển động và mật độ. Không gradient vô cớ, không metric tự nhận." />
+  <link rel="stylesheet" href="../_assets/hallmark-base.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="../_assets/ux-polish.css" />
+</head>
+<body data-ux="frontend-taste" class="craft-theme">
+  <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="#main">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Frontend <em>Craft Review</em></span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Điều hướng chính">
+        <a href="#dials">Dials</a>
+        <a href="#notes">Field notes</a>
+        <a href="#gates">Review gates</a>
+      </nav>
+
+      <div class="header-tools">
+        <a class="header-link" href="#gates">Bảng review</a>
+      </div>
+
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="mobile-drawer">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <aside class="mobile-drawer" id="mobile-drawer" aria-label="Menu điều hướng" aria-hidden="true">
+    <div class="drawer-head">
+      <span class="drawer-title">Điều hướng</span>
+      <button class="plain-button" id="drawer-close" type="button">Đóng</button>
+    </div>
+    <nav class="drawer-nav" aria-label="Điều hướng di động">
+      <a href="#dials">Ba dials</a>
+      <a href="#notes">Field notes</a>
+      <a href="#gates">Review gates</a>
+    </nav>
+  </aside>
+
+  <main id="main">
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div class="hero-copy">
+          <h1>Review bằng tiêu chí.</h1>
+          <p class="lede">
+            Ba dials đổi bố cục, nhịp và mật độ theo ca dùng.
+          </p>
+          <div class="hero-actions">
+            <a class="button-primary" href="#dials">Thử ba dials</a>
+            <a class="text-link" href="#gates">Đọc review gates</a>
+          </div>
+          <p class="hero-footnote">
+            Dials khởi tạo: variance 7, motion 6, density 4. Giá trị chỉ ảnh hưởng vùng preview.
+          </p>
+        </div>
+
+        <figure class="hero-figure">
+          <img loading="lazy" decoding="async" src="../_assets/frontend-taste-review-sheet.svg" width="1200" height="760"
+               alt="Bảng review craft với mẫu typography, thang khoảng cách và bốn tiêu chí kiểm tra" />
+          <figcaption>
+            <span>Review sheet</span>
+            <span>Bản tự host, không phải ảnh chụp sản phẩm</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="dials">
+      <div class="shell">
+        <div class="section-head">
+          <h2>Ba quyết định đổi được ngay</h2>
+          <p>Kéo thanh trượt để xem preview phản hồi. Giá trị cao không tự động tốt hơn.</p>
+        </div>
+
+        <div class="dials-layout">
+          <div class="dial-controls">
+            <div class="dial-row">
+              <div class="dial-meta">
+                <label for="dial-variance">Variance</label>
+                <output id="out-variance" for="dial-variance">7 / 10</output>
+              </div>
+              <input type="range" id="dial-variance" min="1" max="10" value="7" />
+              <p>Độ lệch của ô chính so với các ô phụ. Cao hơn tạo nhịp bất đối xứng rõ hơn.</p>
+            </div>
+
+            <div class="dial-row">
+              <div class="dial-meta">
+                <label for="dial-motion">Motion</label>
+                <output id="out-motion" for="dial-motion">6 / 10</output>
+              </div>
+              <input type="range" id="dial-motion" min="1" max="10" value="6" />
+              <p>Thời lượng chuyển màu viền và nền. Ở mức thấp, chuyển động gần như biến mất.</p>
+            </div>
+
+            <div class="dial-row">
+              <div class="dial-meta">
+                <label for="dial-density">Density</label>
+                <output id="out-density" for="dial-density">4 / 10</output>
+              </div>
+              <input type="range" id="dial-density" min="1" max="10" value="4" />
+              <p>Khoảng cách và padding của preview. Cao hơn phù hợp bảng dữ liệu, thấp hơn phù hợp trang đọc.</p>
+            </div>
+          </div>
+
+          <div class="dial-stage" id="dial-stage" aria-live="off">
+            <div class="preview-head">
+              <span>Preview controls</span>
+              <span id="preview-state">variance 7 / motion 6 / density 4</span>
+            </div>
+            <div class="preview-grid">
+              <article class="preview-card preview-card-main">
+                <h3>Đặt tiêu chí trước pixel</h3>
+                <p>Một màn hình chỉ cần một câu trả lời rõ ràng.</p>
+                <p class="preview-rule">surface / ink / rule, một accent duy nhất</p>
+              </article>
+              <article class="preview-card">
+                <h3>Hover</h3>
+                <p>Đổi viền, giữ kích thước.</p>
+              </article>
+              <article class="preview-card">
+                <h3>Focus</h3>
+                <p>Outline nhìn thấy được.</p>
+              </article>
+            </div>
+            <p class="preview-caption">Minh họa bằng CSS, không phải ảnh chụp giao diện thật.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="notes">
+      <div class="shell">
+        <div class="section-head">
+          <h2>Bốn ghi chú từ review thực tế</h2>
+          <p>Mỗi ghi chú là một lỗi phổ biến và cách sửa cụ thể.</p>
+        </div>
+
+        <div class="notes-grid">
+          <article class="note-card note-lead">
+            <h3>Một ý chính mỗi màn hình</h3>
+            <p>
+              Khi mọi tiêu đề đều to như nhau, người đọc không biết bắt đầu từ đâu. Chọn một câu dẫn dắt,
+              rồi dùng kích cỡ, khoảng trắng và vị trí để bảo vệ nó.
+            </p>
+            <div class="type-sample" aria-hidden="true">
+              <span class="sample-display">Aa</span>
+              <span class="sample-body">body, 16px, 1.55</span>
+              <span class="sample-mono">mono, 12px</span>
+            </div>
+          </article>
+
+          <article class="note-card">
+            <h3>Viền có lý do</h3>
+            <p>Dùng viền để phân vùng, không dùng bóng mờ để tạo cảm giác “cao cấp”.</p>
+            <div class="surface-sample" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </div>
+          </article>
+
+          <article class="note-card">
+            <h3>Đủ bốn trạng thái</h3>
+            <p>Normal, hover, focus và error. Thiếu một là giao diện chưa sẵn sàng bàn giao.</p>
+            <div class="state-sample" aria-hidden="true">
+              <span>normal</span><span>hover</span><span>focus</span><span>error</span>
+            </div>
+          </article>
+
+          <article class="note-card note-wide">
+            <h3>Đừng tự nhận điểm số</h3>
+            <p>
+              “100/100 Lighthouse”, “5 sao” hay “đạt giải thưởng” cần bản đo hoặc liên kết nguồn.
+              Nếu không có bằng chứng, hãy mô tả tiêu chí để người đọc tự kiểm.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="gates">
+      <div class="shell">
+        <div class="section-head">
+          <h2>Bảng review ba cột</h2>
+          <p>Mỗi dòng gồm tiêu chí, dấu hiệu lỗi và hành động sửa.</p>
+        </div>
+
+        <div class="gate-table-wrap">
+          <table class="gate-table">
+            <thead>
+              <tr><th>Tiêu chí</th><th>Dấu hiệu lỗi</th><th>Cách sửa</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Hierarchy</th>
+                <td>Ba tiêu đề cùng cỡ, CTA cạnh tranh nhau.</td>
+                <td>Chọn một ý chính; chuyển các ý còn lại thành nhãn hoặc đoạn phụ.</td>
+              </tr>
+              <tr>
+                <th>Surface</th>
+                <td>Gradient tím, bóng mờ dày, bo góc lớn trên mọi thẻ.</td>
+                <td>Dùng nền phẳng, một accent, viền mỏng và bán kính thống nhất.</td>
+              </tr>
+              <tr>
+                <th>State</th>
+                <td>Chỉ có trạng thái thành công; focus mờ hoặc không có.</td>
+                <td>Bổ sung hover, focus, empty và error trước khi thêm hiệu ứng.</td>
+              </tr>
+              <tr>
+                <th>Motion</th>
+                <td>Động width/height/top/left, hiệu ứng chạy mãi không có mục đích.</td>
+                <td>Chỉ chuyển color/opacity/transform; tôn trọng reduced-motion.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <div><strong>Frontend Craft Review</strong>, Field Guide 04</div>
+      <nav aria-label="Liên kết chân trang">
+        <a href="#dials">Dials</a>
+        <a href="#notes">Field notes</a>
+        <a href="/templates">Kho templates</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const toggle = document.getElementById('menu-toggle');
+      const drawer = document.getElementById('mobile-drawer');
+      const backdrop = document.getElementById('drawer-backdrop');
+      const close = document.getElementById('drawer-close');
+
+      function setDrawer(open) {
+        if (!drawer || !backdrop || !toggle) return;
+        drawer.classList.toggle('open', open);
+        drawer.setAttribute('aria-hidden', String(!open));
+        backdrop.hidden = !open;
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
+        document.body.classList.toggle('drawer-open', open);
+      }
+
+      if (toggle) toggle.addEventListener('click', function () {
+        setDrawer(!drawer.classList.contains('open'));
+      });
+      if (close) close.addEventListener('click', function () { setDrawer(false); });
+      if (backdrop) backdrop.addEventListener('click', function () { setDrawer(false); });
+      drawer.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () { setDrawer(false); });
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') setDrawer(false);
+      });
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 900) setDrawer(false);
+      });
+
+      const stage = document.getElementById('dial-stage');
+      const status = document.getElementById('preview-state');
+      const dials = [
+        { id: 'dial-variance', out: 'out-variance', key: 'variance' },
+        { id: 'dial-motion', out: 'out-motion', key: 'motion' },
+        { id: 'dial-density', out: 'out-density', key: 'density' }
+      ];
+      const state = { variance: 7, motion: 6, density: 4 };
+
+      function applyDials() {
+        if (!stage) return;
+        const offset = Math.round((state.variance - 1) * 8);
+        const duration = state.motion * 30;
+        const gap = Math.max(8, Math.round(40 - state.density * 3.5));
+        const pad = Math.max(16, Math.round(36 - state.density * 2.5));
+
+        stage.style.setProperty('--dial-offset', offset + 'px');
+        stage.style.setProperty('--dial-duration', duration + 'ms');
+        stage.style.setProperty('--dial-gap', gap + 'px');
+        stage.style.setProperty('--dial-pad', pad + 'px');
+        stage.dataset.motion = state.motion <= 2 ? 'off' : 'on';
+        if (status) {
+          status.textContent = 'variance ' + state.variance + ' / motion ' + state.motion + ' / density ' + state.density;
+        }
+      }
+
+      dials.forEach(function (dial) {
+        const input = document.getElementById(dial.id);
+        const output = document.getElementById(dial.out);
+        if (!input) return;
+        state[dial.key] = Number(input.value);
+        input.addEventListener('input', function () {
+          state[dial.key] = Number(input.value);
+          if (output) output.textContent = input.value + ' / 10';
+          applyDials();
+        });
+      });
+
+      applyDials();
+    }());
+  </script>
+</body>
+</html>

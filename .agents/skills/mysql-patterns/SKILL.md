@@ -1,0 +1,26 @@
+---
+name: mysql-patterns
+description: "MySQL and MariaDB schema, query, indexing, transaction, replication, and connection-pool patterns for production backends."
+---
+
+# Alias: mysql-patterns
+
+**DEPRECATED**: This skill has been renamed to `db_mysql-patterns`.
+
+For backward compatibility, this alias redirects to the new skill.
+
+## Migration
+
+Update your code to use:
+`
+.cursor/skills/db_mysql-patterns/SKILL.md
+`
+
+## Auto-Redirect
+
+This alias is maintained for backward compatibility.
+The skill-registry will automatically redirect to the new name.
+
+---
+Auto-generated alias file
+Last updated: 2026-08-03

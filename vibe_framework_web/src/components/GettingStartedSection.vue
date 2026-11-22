@@ -28,7 +28,7 @@ const steps: Step[] = [
     number: '01',
     title: 'Clone the framework',
     description: 'Get the monorepo with all rules, skills, and agents preconfigured.',
-    command: 'git clone https://github.com/your-org/vibe-framework.git',
+    command: 'git clone https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR.git',
     detail: 'Takes 12 seconds. Includes 39 rules, 17 skills, 8 agents.'
   },
   {

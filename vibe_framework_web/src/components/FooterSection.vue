@@ -37,7 +37,7 @@ const linkGroups: FooterGroup[] = [
       { label: 'File explorer', href: '#explorer' },
       { label: 'Getting started', href: '#getting-started' },
       { label: 'Karpathy guidelines', href: 'https://github.com/multica-ai/andrej-karpathy-skills', external: true },
-      { label: 'GitHub repo', href: 'https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR', external: true }
+      { label: 'GitHub repo', href: 'https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR', external: true }
     ]
   }
 ]
@@ -123,14 +123,14 @@ function smoothScroll(e: MouseEvent, href: string): void {
           <span class="footer-mono">local-first · repo-driven</span>
         </div>
         <div class="footer-legal">
-          <a href="https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR" class="footer-link" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR" class="footer-link" target="_blank" rel="noopener noreferrer">
             Documentation
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="footer-link-icon" aria-hidden="true">
               <path d="M7 17L17 7M17 7H8M17 7V16"/>
             </svg>
           </a>
           <span class="footer-sep" aria-hidden="true">·</span>
-          <a href="https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR" class="footer-link" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR" class="footer-link" target="_blank" rel="noopener noreferrer">
             MIT License
           </a>
           <span class="footer-sep" aria-hidden="true">·</span>

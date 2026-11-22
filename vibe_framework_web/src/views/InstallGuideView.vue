@@ -49,7 +49,7 @@ const methods: InstallMethod[] = [
       {
         title: 'Truy cập trang Release mới nhất',
         detail: 'Mở trình duyệt và vào GitHub Releases. Tìm bản Latest (ví dụ v1.3.0).',
-        code: 'https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR/releases/latest',
+        code: 'https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR/releases/latest',
         codeLabel: 'URL'
       },
       {
@@ -122,7 +122,7 @@ const methods: InstallMethod[] = [
       {
         title: 'Dán lệnh sau và Enter',
         detail: 'Lệnh này sẽ tải script install.ps1 từ repo chính thức rồi thực thi nó. Bạn có thể xem source trước tại link URL bên dưới.',
-        code: 'irm https://raw.githubusercontent.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR/main/install.ps1 | iex',
+        code: 'irm https://raw.githubusercontent.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR/main/install.ps1 | iex',
         codeLabel: 'Lệnh cài đặt'
       },
       {
@@ -179,7 +179,7 @@ const methods: InstallMethod[] = [
       {
         title: 'Clone repo và cài dependencies',
         detail: 'Khác với cài GUI: lần này bạn clone repo để lấy Python package ở source. Sau đó cài requirements. Tất cả subcommands CLI dùng được ngay.',
-        code: 'git clone https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR.git\ncd CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR\npip install -r vibe_framework/requirements.txt',
+        code: 'git clone https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR.git\ncd VIBE-ENTERPRISE-FRAMEWORK-GENERATOR\npip install -r vibe_framework/requirements.txt',
         codeLabel: 'Terminal',
         tip: 'Repo đặt ở đâu cũng được — không bắt buộc phải là C:\\.cursor. Đây là tool cho dev, không phải rules cho IDE.'
       },
@@ -260,13 +260,13 @@ const methods: InstallMethod[] = [
       {
         title: 'Clone repository về máy',
         detail: 'Cần Git cài sẵn. Clone vào một thư mục tạm, KHÔNG clone thẳng vào .cursor/.',
-        code: 'git clone https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR.git',
+        code: 'git clone https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR.git',
         codeLabel: 'Terminal'
       },
       {
         title: 'Điều hướng vào repo vừa clone',
         detail: 'Mở terminal ở thư mục vừa clone và kiểm tra cấu trúc.',
-        code: 'cd CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR\nls .cursor/',
+        code: 'cd VIBE-ENTERPRISE-FRAMEWORK-GENERATOR\nls .cursor/',
         codeLabel: 'Terminal'
       },
       {
@@ -590,7 +590,7 @@ async function handleCopy(code: string, key: string) {
                   Mở issue trên GitHub hoặc xem FAQ bên dưới.
                 </p>
                 <a
-                  href="https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR/issues"
+                  href="https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR/issues"
                   target="_blank"
                   rel="noopener"
                   class="ins-sidebar-card-link"

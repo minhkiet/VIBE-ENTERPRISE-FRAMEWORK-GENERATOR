@@ -348,6 +348,19 @@ python -m vibe_framework vibe install-plugins --tool <tool> --workspace "<worksp
 
 Tool id hợp lệ: `cursor`, `windsurf`, `claude-code`, `antigravity`, `cline`, `roo`, `copilot`, `aider`, `codex`. GUI dùng `ArgumentList` nên workspace có dấu cách vẫn chạy đúng. Kiểm chứng sau khi sửa GUI:
 
+Để chạy cài đặt GUI không cần click chuột (dùng cho CI/smoke test), truyền các tham số sau cho exe đã publish:
+
+```powershell
+VibeCodeEnterpriseFramework.exe --target "<workspace>" --install --no-dialogs --skip-cursor-check
+```
+
+- `--target`: base path; GUI sẽ cài vào `<target>\.cursor` cho Cursor.
+- `--install`: tự chạy đúng `InstallCommand` sau khi window loaded và danh mục components đã scan xong.
+- `--no-dialogs`: bỏ qua MessageBox xác nhận Cursor đang chạy và MessageBox báo cài đặt xong.
+- `--skip-cursor-check`: bỏ qua bước kiểm tra Cursor process (dùng cùng `--no-dialogs` khi chạy automation).
+
+Log chẩn đoán được ghi tại `%LOCALAPPDATA%\CursorSetup\cursor-setup-debug.log` với các dòng `AUTO ...`.
+
 GUI cần Python 3.9+ trên `PATH` hoặc Windows `py` launcher (repo tổng thể yêu cầu 3.10+); trình tìm tự động thử `python`, `python3`, `py -3` và các bản Python 3.9–3.13 cài trong `%LOCALAPPDATA%\Programs\Python`. Bản publish đã kèm `vibe_framework/` và tự tạo `vibe-setup.zip` cạnh exe nên chạy được ngay cả khi chưa cài wheel.
 
 ```powershell

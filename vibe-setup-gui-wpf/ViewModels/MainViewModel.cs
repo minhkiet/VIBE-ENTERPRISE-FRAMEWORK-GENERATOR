@@ -23,6 +23,7 @@ namespace CursorSetupWpf.ViewModels
         readonly FrameworkRunner _framework = new();
         readonly ProjectRunner _projectRunner = new();
         readonly GitHubSkillService _githubSkills = new();
+        readonly Task _categoriesLoadTask;
         readonly ToastService _toast = ToastService.Instance;
 
         // Navigation
@@ -74,7 +75,7 @@ namespace CursorSetupWpf.ViewModels
         public ThreadSafeObservableCollection<NavItem> NavItems { get; } = new();
         
         // ECC ViewModel - shared with ECCView for bilingual support
-        public ECCViewModel ECCViewModel { get; } = new();
+        public ECCViewModel ECCViewModel { get; }
         public ThreadSafeObservableCollection<SetupCategory> ComponentCategories { get; } = new();
         public ThreadSafeObservableCollection<SetupCategory> AdvancedCategories { get; } = new();
         public ThreadSafeObservableCollection<McpServerStatus> McpServers { get; } = new();
@@ -427,7 +428,7 @@ namespace CursorSetupWpf.ViewModels
         bool _enablePostInstallHook = true;
         public bool EnablePostInstallHook { get => _enablePostInstallHook; set => Set(ref _enablePostInstallHook, value); }
 
-        string _preScanScript = "-m vibe_framework.indexer --validate";
+        string _preScanScript = "-m vibe_framework scan";
         public string PreScanScript { get => _preScanScript; set => Set(ref _preScanScript, value); }
 
         string _postInstallScript = "-m vibe_framework.indexer";
@@ -860,6 +861,7 @@ namespace CursorSetupWpf.ViewModels
         public ICommand BrowseCommand { get; }
         public ICommand NewFolderCommand { get; }
         public ICommand InstallCommand { get; }
+        public bool SuppressDialogs { get; set; }
         public ICommand CancelCommand { get; }
         public ICommand SelectAllComponentsCommand { get; }
         public ICommand DeselectAllComponentsCommand { get; }
@@ -945,6 +947,7 @@ namespace CursorSetupWpf.ViewModels
             _settings.Load();
             // The base folder that holds the per-agent configuration roots.
             InstallPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            ECCViewModel = new ECCViewModel(() => InstallPath);
             BackupLocation = _settings.DefaultBackupPath;
             GithubWorkspaceRoot = _githubSkills.FindWorkspaceRoot();
             
@@ -1109,7 +1112,7 @@ namespace CursorSetupWpf.ViewModels
             // Initialize data on startup
             ResetSteps();
             SeedChangelog();
-            _ = LoadCategoriesAsync();
+            _categoriesLoadTask = LoadCategoriesAsync();
             RefreshBackups();
             LoadThemes();
         }
@@ -1148,6 +1151,25 @@ namespace CursorSetupWpf.ViewModels
             }
         }
 
+        public void ApplyAutomation(AutomationArgs args)
+        {
+            if (!string.IsNullOrWhiteSpace(args.Target))
+                InstallPath = Path.GetFullPath(args.Target);
+            if (args.SkipCursorCheck)
+                SkipCursorCheck = true;
+            SuppressDialogs = args.NoDialogs;
+            App.Log($"AUTO applied target={InstallPath} skip={SkipCursorCheck} noDialogs={SuppressDialogs}");
+        }
+
+        public async Task RunAutomatedInstallAsync()
+        {
+            App.Log("AUTO waiting categories");
+            await _categoriesLoadTask;
+            App.Log($"AUTO categories done count={ComponentCategories.Count}");
+            await InstallAsync(null);
+            App.Log("AUTO install finished");
+        }
+
         async Task InstallAsync(object? _)
         {
             if (IsInstalling) return;
@@ -1159,7 +1181,7 @@ namespace CursorSetupWpf.ViewModels
             SetActiveStep(1);
             SetStatusKey("log.preparing");
 
-            if (!SkipCursorCheck && Installer.IsCursorRunning())
+            if (!SkipCursorCheck && !SuppressDialogs && Installer.IsCursorRunning())
             {
                 var result = MessageBox.Show(
                     LocalizationService.T("log.cursor_running_msg"),
@@ -1214,10 +1236,13 @@ namespace CursorSetupWpf.ViewModels
                         LocalizationService.T("msgbox.complete_title"),
                         LocalizationService.T("msgbox.complete_msg", InstallPath));
 
-                MessageBox.Show(
-                    LocalizationService.T("msgbox.complete_msg", InstallPath),
-                    LocalizationService.T("msgbox.complete_title"),
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                if (!SuppressDialogs)
+                {
+                    MessageBox.Show(
+                        LocalizationService.T("msgbox.complete_msg", InstallPath),
+                        LocalizationService.T("msgbox.complete_title"),
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
             catch (Exception ex)
             {

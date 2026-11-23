@@ -19,9 +19,7 @@ from typing import Optional
 try:
     import requests
 except ImportError:
-    print("Installing requests...")
-    os.system(f"{sys.executable} -m pip install requests")
-    import requests
+    requests = None
 
 
 @dataclass
@@ -37,6 +35,8 @@ class ZaloMCPClient:
     def __init__(self, access_token: str):
         self.access_token = access_token
         self.config = ZaloConfig()
+        if requests is None:
+            raise RuntimeError("requests library required. Install with: pip install requests")
         self.session = requests.Session()
         self.session.headers.update({
             "access_token": access_token,

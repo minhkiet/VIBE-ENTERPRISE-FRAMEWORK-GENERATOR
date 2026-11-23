@@ -33,12 +33,8 @@ from typing import Optional
 
 try:
     import click
-    HAS_CLICK = True
 except ImportError:
-    HAS_CLICK = False
-    print("Installing dependencies...")
-    subprocess.run([sys.executable, "-m", "pip", "install", "click", "rich"], check=True)
-    import click
+    raise ImportError("click and rich are required. Install with: pip install click rich") from None
 
 # Colors for terminal output
 class Colors:

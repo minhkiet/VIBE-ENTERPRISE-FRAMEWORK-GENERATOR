@@ -25,8 +25,7 @@ from typing import Optional
 try:
     import requests
 except ImportError:
-    print("ERROR: requests library required. Install with: pip install requests")
-    sys.exit(1)
+    requests = None
 
 
 @dataclass
@@ -42,6 +41,8 @@ class ZaloClient:
     def __init__(self, access_token: str, config: Optional[ZaloConfig] = None):
         self.access_token = access_token
         self.config = config or ZaloConfig()
+        if requests is None:
+            raise RuntimeError("requests library required. Install with: pip install requests")
         self.session = requests.Session()
         self.session.headers.update({
             "access_token": access_token,

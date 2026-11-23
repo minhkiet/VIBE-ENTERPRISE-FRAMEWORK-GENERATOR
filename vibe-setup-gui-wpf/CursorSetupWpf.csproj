@@ -39,6 +39,13 @@
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
       <Link>tools\skill_installer.py</Link>
     </Content>
+    <!-- Bundle the Python framework so the published GUI works outside the source checkout. -->
+    <Content Include="..\vibe_framework\**\*"
+             Exclude="..\vibe_framework\__pycache__\**;..\vibe_framework\.cache\**;..\vibe_framework\build\**;..\vibe_framework\tests\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+      <Link>vibe_framework\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
   </ItemGroup>
   <!-- Keep localization deterministic on incremental publish. -->
   <Target Name="CopySharedLocalizationAfterPublish" AfterTargets="Publish">
@@ -54,6 +61,12 @@
       SourceFiles="$(MSBuildProjectDirectory)\..\tools\skill_installer.py"
       DestinationFiles="$(PublishDir)tools\skill_installer.py"
       SkipUnchangedFiles="false" />
+  </Target>
+  <!-- Generate the payload archive next to the published GUI so startup scans are clean. -->
+  <Target Name="BuildPayloadZipAfterPublish" AfterTargets="Publish">
+    <Exec
+      Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\build-zip.ps1&quot; -Config $(Configuration)"
+      EnvironmentVariables="VIBE_PUBLISH_DIR=$(PublishDir)" />
   </Target>
   <!-- MCP Tools - auto-include from ../tools directory -->
   <ItemGroup>

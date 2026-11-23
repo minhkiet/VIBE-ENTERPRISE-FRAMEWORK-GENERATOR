@@ -63,4 +63,19 @@ const router = createRouter({
   }
 })
 
+const chunkReloadKey = 'vibe-chunk-reload'
+router.onError((error) => {
+  const message = error instanceof Error ? error.message : String(error)
+  if (!/Failed to fetch dynamically imported module|Loading chunk .* failed|Importing a module script failed/i.test(message)) return
+  try {
+    if (sessionStorage.getItem(chunkReloadKey) === '1') return
+    sessionStorage.setItem(chunkReloadKey, '1')
+  } catch {
+    // Storage may be disabled; reload once and let the fresh HTML take over.
+  }
+  const url = new URL(window.location.href)
+  url.searchParams.set('v', String(Date.now()))
+  window.location.replace(url.toString())
+})
+
 export default router

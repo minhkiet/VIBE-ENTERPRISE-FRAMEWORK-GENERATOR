@@ -3,7 +3,7 @@
 > A universal framework for AI coding agents & Vibe Coding tools — built around **Memory First**, **Retrieval First**, **Token Optimization**, **Knowledge Reuse**, and **Anti-AI-Slop Aesthetics**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Latest Release](https://img.shields.io/badge/release-v1.3.0-blue)](https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR/releases)
+[![Latest Release](https://img.shields.io/badge/release-v1.7.0-blue)](https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR/releases)
 [![Vibe Code](https://img.shields.io/badge/Vibe_Code-Universal_Support-10b981)](vibe-code-framework/)
 [![Templates](https://img.shields.io/badge/Templates-22_Production_Ready-f59e0b)](vibe_framework_web/public/templates/)
 [![Themes](https://img.shields.io/badge/Themes-6_Aesthetics-6366f1)](#themes--uiux-system)
@@ -41,7 +41,7 @@ Instead of starting every coding session from zero and falling into generic "AI 
 | **VBS Security Scanner** | 21 cross-language vulnerability rules + SCA | `.cursor/skills/sec_reverse-engineer-anything/` |
 | **Python Library** | 14 modules + 6 utility suites | `vibe_framework/` |
 | **Web Dashboard & CMS** | Vue 3 + Vite 6 + TypeScript + CMS Auth Gate | `vibe_framework_web/` |
-| **Windows GUI Installer** | `VibeCodeEnterpriseFramework.exe` (~162 MB), `vibe-setup.zip` (~22 MB) | generated in `dist/` by build scripts |
+| **Windows GUI Installer** | `VibeCodeEnterpriseFramework.exe` (~162 MB), `vibe-setup.zip` (~32 MB) | generated in `dist/` by `dotnet publish` |
 
 ---
 
@@ -87,9 +87,9 @@ Bạn có thể lựa chọn 1 trong các phương thức cài đặt thuận ti
 
 ### Cách 1: Windows GUI Installer (Khuyến nghị cho người mới)
 
-1. Tải 2 file từ [Latest Release](https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR/releases):
+1. Tải 2 file từ [Latest Release](https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR/releases):
    - `VibeCodeEnterpriseFramework.exe` (Self-contained, không yêu cầu cài .NET runtime)
-   - `vibe-setup.zip` (Bộ payload framework ~22 MB)
+   - `vibe-setup.zip` (Bộ payload framework ~32 MB)
 2. Đặt cả 2 file vào cùng một thư mục.
 3. Chạy `VibeCodeEnterpriseFramework.exe`, chọn đường dẫn đích (mặc định `%USERPROFILE%\.cursor`).
 4. Bấm **Install** và đợi 15 giây. Khởi động lại Vibe tool bạn dùng (Cursor, Windsurf, Claude Code, Codex...).
@@ -99,18 +99,23 @@ Bạn có thể lựa chọn 1 trong các phương thức cài đặt thuận ti
 Mở PowerShell và dán lệnh sau để tự động tải và cài đặt bản mới nhất:
 
 ```powershell
-irm https://raw.githubusercontent.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR/main/install.ps1 | iex
 ```
 
 Để cập nhật phiên bản mới sau này:
 ```powershell
-& {irm https://raw.githubusercontent.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR/main/install.ps1} -Update
+& {irm https://raw.githubusercontent.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR/main/install.ps1} -Update
 ```
 
-### Cách 3: macOS / Linux Universal Script
+### Cách 3: macOS / Linux qua Python CLI
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR/main/install.sh | bash
+git clone https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR.git
+cd VIBE-ENTERPRISE-FRAMEWORK-GENERATOR
+
+# Xem trước, sau đó đồng bộ cấu hình cho tất cả vibe tool
+python -m vibe_framework vibe sync --tool all --dry-run
+python -m vibe_framework vibe sync --tool all
 ```
 
 ### Cách 4: Cài đặt cho Claude Code / Codex qua NPX (ECC Universal)
@@ -126,8 +131,8 @@ npx ecc-universal@2.2.2 install --guided
 ### Cách 5: Clone & Cài Đặt Thủ Công từ Source
 
 ```powershell
-git clone https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR.git
-cd "CURSOR ENTERPRISE FRAMEWORK GENERATOR"
+git clone https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR.git
+cd "VIBE-ENTERPRISE-FRAMEWORK-GENERATOR"
 
 # Chạy script cài đặt
 .\setup.bat                    # Cài đặt vào %USERPROFILE%\.cursor
@@ -334,6 +339,22 @@ cd vibe-setup-gui-wpf
 dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ../dist
 ```
 
+Tab **ECC** trong GUI gọi trực tiếp CLI của framework, dùng `--workspace` cho đường dẫn dự án (legacy commands dùng `--root`):
+
+```powershell
+python -m vibe_framework vibe sync --tool <tool> --workspace "<workspace>"
+python -m vibe_framework vibe install-plugins --tool <tool> --workspace "<workspace>"
+```
+
+Tool id hợp lệ: `cursor`, `windsurf`, `claude-code`, `antigravity`, `cline`, `roo`, `copilot`, `aider`, `codex`. GUI dùng `ArgumentList` nên workspace có dấu cách vẫn chạy đúng. Kiểm chứng sau khi sửa GUI:
+
+GUI cần Python 3.9+ trên `PATH` hoặc Windows `py` launcher (repo tổng thể yêu cầu 3.10+); trình tìm tự động thử `python`, `python3`, `py -3` và các bản Python 3.9–3.13 cài trong `%LOCALAPPDATA%\Programs\Python`. Bản publish đã kèm `vibe_framework/` và tự tạo `vibe-setup.zip` cạnh exe nên chạy được ngay cả khi chưa cài wheel.
+
+```powershell
+dotnet test vibe-setup-gui-wpf/CursorSetupWpf.sln -c Release
+python -m unittest discover -s vibe_framework/tests -v
+```
+
 ---
 
 ## Themes & UI/UX System
@@ -374,7 +395,7 @@ Hệ thống tích hợp trang quản trị CMS Dashboard chuyên nghiệp tại
 
 - **License:** MIT License — Xem chi tiết tại [LICENSE](LICENSE).
 - **Versioning:**
-  - Repo Releases: `v1.3.0`
+  - Repo Releases: `v1.7.0`
   - Framework Payload: `4.2.0`
   - ECC Universal: `2.2.2`
   - REA Engine: `6.4.0`

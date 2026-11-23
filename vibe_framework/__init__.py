@@ -5,10 +5,9 @@ A comprehensive Python library supporting the Vibe Enterprise Framework rules an
 Provides utilities for context routing, memory management, token optimization, and skill discovery.
 
 Supports multiple vibe coding agents:
-- Cursor IDE
-- OpenAI Codex
-- Claude Code
-- Grok (x.com/grok)
+- Cursor IDE, Windsurf, Claude Code, Google Antigravity
+- Cline, Roo Code, GitHub Copilot, Aider, OpenAI Codex (via `vibe sync`)
+- Grok (x.com/grok) via the cross-agent skill registry
 
 See STRUCTURE.md for full directory layout and data flow diagrams.
 

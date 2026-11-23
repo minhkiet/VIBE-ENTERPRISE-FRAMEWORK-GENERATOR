@@ -21,7 +21,7 @@ pip install -r requirements.txt
 ## Quick Start
 
 ```python
-from vibe_framework import ContextRouter, MemoryManager, SkillDiscovery
+from vibe_framework import ContextRouter, MemoryManager, SkillDiscovery, MemoryTier
 
 # Route a request to appropriate skill
 router = ContextRouter()
@@ -30,7 +30,7 @@ print(f"Skill: {route.skill.value}, Confidence: {route.confidence}")
 
 # Manage context with memory
 memory = MemoryManager()
-memory.store("project_info", {"name": "myapp"}, tier=MemoryTier.SESSION)
+memory.store("project_info", {"name": "myapp"}, tier=MemoryTier.HOT)
 context = memory.retrieve("project_info")
 
 # Discover applicable skills
@@ -92,22 +92,24 @@ The framework supports multiple vibe coding agents with unified skill and rule m
 
 ### Installation per Agent
 
-#### Cursor IDE / Codex
+Use the `vibe` subcommand for runtime tools supported by `VibeTool`:
+
 ```bash
-# Primary installation target
-python -m vibe_framework install --agent cursor
+# Sync tool-native instructions (preview first)
+python -m vibe_framework vibe sync --tool cursor --dry-run
+python -m vibe_framework vibe sync --tool claude-code
+
+# Install bundled plugins for tools with an extension host
+python -m vibe_framework vibe install-plugins --tool cursor
 ```
 
-#### Claude Code
-```bash
-# Install to Claude Code skills directory
-python -m vibe_framework install --agent claude-code
-```
+`vibe sync` also covers Windsurf, Antigravity, Cline, Roo Code, Copilot and
+Aider; run `python -m vibe_framework vibe --help` for the current list.
 
-#### Grok (x.com/grok)
+Grok is handled by the cross-agent skill registry, not by `vibe sync`:
+
 ```bash
-# Install to Grok skills directory
-python -m vibe_framework install --agent grok
+python -m vibe_framework.cross_agent --agent grok --skills
 ```
 
 ### Universal Gates (U.1-U.7)

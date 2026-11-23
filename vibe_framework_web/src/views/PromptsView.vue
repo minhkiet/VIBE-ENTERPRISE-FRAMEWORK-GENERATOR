@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useIntersectionObserver } from '../composables/useIntersectionObserver'
+import { copyText } from '../composables/useClipboard'
 import { PROMPTS, type PromptItem, type PromptExecutionStep } from '../data/prompts'
 import { CATALOG, type FrameworkItem } from '../data/framework'
 
@@ -60,9 +61,8 @@ const selectedPrompt = computed<PromptItem | undefined>(() =>
   PROMPTS.find((p) => p.id === selectedPromptId.value)
 )
 
-function copyPromptText(text: string) {
-  if (!text) return
-  navigator.clipboard.writeText(text)
+async function copyPromptText(text: string) {
+  if (!(await copyText(text))) return
   copiedPrompt.value = true
   setTimeout(() => {
     copiedPrompt.value = false

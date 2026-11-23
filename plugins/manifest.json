@@ -3,7 +3,7 @@
   "version": "1.2.1",
   "description": "Official plugin collection for Vibe Enterprise Framework",
   "author": "Vibe Enterprise Framework Team",
-  "homepage": "https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR",
+  "homepage": "https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR",
   "plugins": [
     {
       "id": "vibe-framework-quick-actions",

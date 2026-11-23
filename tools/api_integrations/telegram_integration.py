@@ -24,8 +24,7 @@ from typing import Optional, List
 try:
     import requests
 except ImportError:
-    print("ERROR: requests library required. Install with: pip install requests")
-    sys.exit(1)
+    requests = None
 
 
 @dataclass
@@ -41,6 +40,8 @@ class TelegramBot:
         self.bot_token = bot_token
         self.config = config or TelegramConfig()
         self.base_url = f"{self.config.api_base_url}/bot{bot_token}"
+        if requests is None:
+            raise RuntimeError("requests library required. Install with: pip install requests")
         self.session = requests.Session()
     
     def _request(self, method: str, data: dict = None, files: dict = None) -> dict:

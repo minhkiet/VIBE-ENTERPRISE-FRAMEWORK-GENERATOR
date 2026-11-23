@@ -130,6 +130,10 @@ python -m vibe_framework vibe detect
 
 # Or check status with environment summary
 python -m vibe_framework vibe status
+
+# Machine-readable output for CI/automation
+python -m vibe_framework vibe detect --json
+python -m vibe_framework vibe status --json
 ```
 
 Example output:
@@ -161,13 +165,17 @@ python -m vibe_framework vibe sync
 # Force sync for a specific tool (e.g. Claude Code or Windsurf)
 python -m vibe_framework vibe sync --tool claude-code --force
 python -m vibe_framework vibe sync --tool windsurf --force
+
+# JSON report for CI/automation
+python -m vibe_framework vibe sync --dry-run --json
 ```
 
 Existing configuration files are never overwritten by `vibe sync` unless
 `--force` is supplied. Without force, the report marks them as `skipped`;
 with `--dry-run`, it reports `would_create` or `would_update` and writes
-nothing. Use `--json` with `vibe install-plugins` for machine-readable output;
-failures still return exit code `1`.
+nothing. Use `--json` on `vibe detect`, `vibe status`, `vibe sync`, or
+`vibe install-plugins` for machine-readable output; failed sync/install
+operations still return exit code `1`.
 
 ### Plugin Installation (safe by default)
 
@@ -183,10 +191,14 @@ python -m vibe_framework vibe install-plugins --force
 ```
 
 The bundled plugins use the VS Code extension format (`main`,
-`activationEvents`, `contributes`). They are installed only for editor runtimes
-with an extension host (Cursor, Windsurf). Agent runtimes such as Claude Code,
-Codex, Cline, and Roo Code are skipped with an explicit reason instead of
-receiving bundles they cannot load.
+`activationEvents`, `contributes`). They are installed for tools with an
+extension host (Cursor, Windsurf, Cline, Roo Code). Agent runtimes without one
+(Claude Code, Antigravity, Codex) skip those bundles with an explicit reason.
+Add generic plugins to your own source directory if those runtimes need them.
+
+Wheels bundle the plugin catalog, so `install-plugins` works outside the
+source checkout. Pass `--plugins-dir <path-to-plugins>` only when you want to
+override it with your own plugin source.
 
 ---
 
@@ -231,6 +243,15 @@ python -m vibe_framework redis doctor
 
 # 3. Check connection status and server health
 python -m vibe_framework redis status
+```
+
+All Redis diagnostics accept `--json` for automation:
+
+```bash
+python -m vibe_framework redis metrics --json
+python -m vibe_framework redis slowlog --json
+python -m vibe_framework redis doctor --json
+python -m vibe_framework redis status --json
 ```
 
 ---

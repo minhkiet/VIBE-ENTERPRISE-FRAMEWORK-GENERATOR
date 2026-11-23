@@ -414,8 +414,11 @@ class VibeSyncEngine:
             lines.extend([
                 "- Follow autonomous step-by-step tool execution.",
                 "- Request user confirmation before running destructive filesystem or network commands.",
-                "- Use `.roomodes` for switching between Architect, Code, and Ask personas.",
             ])
+            if tool == VibeTool.CLINE:
+                lines.append("- Keep workspace rules in `.clinerules` and follow the native Cline approval flow.")
+            else:
+                lines.append("- Use `.roomodes` for switching between Architect, Code, and Ask personas.")
         elif tool == VibeTool.COPILOT:
             lines.extend([
                 "- Apply inline completions following existing repository style and typing.",
@@ -559,15 +562,27 @@ class VibeSyncEngine:
     ) -> dict[str, Any]:
         """
         Deploy framework plugins into the specified vibe coding tools.
-        Copies plugins from source_dir (default: workspace/plugins) to tool plugin directories.
+        Copies plugins from source_dir, falling back to the workspace then
+        bundled framework plugins, into tool plugin directories.
         """
         import shutil
 
-        src = Path(source_dir or (self.workspace_root / "plugins")).resolve()
+        candidates = ()
+        if source_dir:
+            src = Path(source_dir).resolve()
+        else:
+            package_root = Path(__file__).resolve().parent
+            candidates = (
+                self.workspace_root / "plugins",
+                package_root.parent / "plugins",
+                package_root / "plugins",
+            )
+            src = next((p.resolve() for p in candidates if p.exists()), candidates[0].resolve())
         if not src.exists():
+            searched = ", ".join(str(p.resolve()) for p in candidates) if candidates else str(src)
             return {
                 "success": False,
-                "error": f"Source plugins directory not found: {src}",
+                "error": f"Source plugins directory not found. Searched: {searched}",
                 "dry_run": dry_run,
                 "results": {},
             }

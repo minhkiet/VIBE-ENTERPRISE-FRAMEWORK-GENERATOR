@@ -29,6 +29,7 @@ function handleLoginSubmit() {
     isLoggingIn.value = false
     if (res.success) {
       showToast(res.message)
+      logActivity('Đăng nhập CMS', 'Phiên quản trị đã được xác thực.')
       loginForm.value.password = ''
     } else {
       loginError.value = res.message
@@ -41,6 +42,7 @@ function handleLoginSubmit() {
 }
 
 function handleLogout() {
+  logActivity('Đăng xuất CMS', 'Kết thúc phiên quản trị.')
   logout()
   showToast('Đã đăng xuất thành công khỏi hệ thống CMS.')
 }
@@ -53,6 +55,27 @@ function fillCredentialsQuickly() {
 
 // Local storage key for persistent edits
 const STORAGE_KEY = 'cef_cms_templates_v1'
+const FEATURED_STORAGE_KEY = 'cef_cms_featured_v1'
+const STATUS_STORAGE_KEY = 'cef_cms_status_v1'
+const ACTIVITY_STORAGE_KEY = 'cef_cms_activity_v1'
+
+type ActivityEntry = {
+  id: string
+  at: number
+  action: string
+  detail: string
+  actor: string
+}
+
+type CheckStatus = 'idle' | 'pass' | 'warn' | 'fail'
+
+type ValidationCheck = {
+  key: string
+  label: string
+  description: string
+  status: CheckStatus
+  detail: string
+}
 
 // State
 const activeTab = ref<'templates' | 'analytics' | 'deploy' | 'logs'>('templates')
@@ -70,6 +93,32 @@ const featuredIds = ref<Set<string>>(new Set(['crm', 'sale', 'insurance', 'bazi'
 
 // Active/Draft toggle map
 const activeStatusMap = ref<Record<string, boolean>>({})
+
+const activityLog = ref<ActivityEntry[]>([])
+const lastValidationAt = ref<number | null>(null)
+const validationChecks = ref<ValidationCheck[]>([
+  {
+    key: 'schema',
+    label: 'Catalog Schema & Định Danh',
+    description: 'Kiểm tra các trường bắt buộc và tính duy nhất của id/slug.',
+    status: 'idle',
+    detail: 'Chưa chạy kiểm định.'
+  },
+  {
+    key: 'metadata',
+    label: 'Metadata Đóng Gói & Màu Sắc',
+    description: 'Kiểm tra accent hex, số trang và cấu trúc mảng features/tags/techStack.',
+    status: 'idle',
+    detail: 'Chưa chạy kiểm định.'
+  },
+  {
+    key: 'links',
+    label: 'Liên Kết Featured & Trạng Thái',
+    description: 'Đối chiếu featured IDs và trạng thái với catalog hiện hành.',
+    status: 'idle',
+    detail: 'Chưa chạy kiểm định.'
+  }
+])
 
 // Modals state
 const isEditModalOpen = ref(false)
@@ -97,6 +146,8 @@ function showToast(msg: string) {
 onMounted(() => {
   // Check auth session
   checkAuth()
+  loadUiState()
+  loadActivityLog()
 
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -109,12 +160,7 @@ onMounted(() => {
     templateList.value = JSON.parse(JSON.stringify(defaultTemplates))
   }
 
-  // initialize active status
-  templateList.value.forEach(t => {
-    if (activeStatusMap.value[t.id] === undefined) {
-      activeStatusMap.value[t.id] = true
-    }
-  })
+  syncUiState()
 })
 
 function saveToLocalStorage() {
@@ -123,6 +169,47 @@ function saveToLocalStorage() {
   } catch (e) {
     console.error('Failed to save to localStorage', e)
   }
+  persistUiState()
+}
+
+function loadUiState() {
+  try {
+    const savedFeatured = localStorage.getItem(FEATURED_STORAGE_KEY)
+    if (savedFeatured) {
+      const parsed = JSON.parse(savedFeatured)
+      if (Array.isArray(parsed)) {
+        featuredIds.value = new Set(parsed.filter((id): id is string => typeof id === 'string'))
+      }
+    }
+    const savedStatus = localStorage.getItem(STATUS_STORAGE_KEY)
+    if (savedStatus) {
+      const parsed = JSON.parse(savedStatus)
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        activeStatusMap.value = parsed as Record<string, boolean>
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load CMS UI state', e)
+  }
+}
+
+function persistUiState() {
+  try {
+    localStorage.setItem(FEATURED_STORAGE_KEY, JSON.stringify([...featuredIds.value]))
+    localStorage.setItem(STATUS_STORAGE_KEY, JSON.stringify(activeStatusMap.value))
+  } catch (e) {
+    console.error('Failed to save CMS UI state', e)
+  }
+}
+
+function syncUiState() {
+  const ids = new Set(templateList.value.map((t) => t.id))
+  featuredIds.value = new Set([...featuredIds.value].filter((id) => ids.has(id)))
+  const nextStatus: Record<string, boolean> = {}
+  templateList.value.forEach((t) => {
+    nextStatus[t.id] = activeStatusMap.value[t.id] !== false
+  })
+  activeStatusMap.value = nextStatus
 }
 
 // Computed categories & industries
@@ -172,23 +259,200 @@ const filteredTemplates = computed(() => {
 // KPI Metrics
 const totalTemplatesCount = computed(() => templateList.value.length)
 const totalPagesCount = computed(() => templateList.value.reduce((acc, t) => acc + (t.pages || 0), 0))
+const totalIndustries = computed(() => Math.max(0, industries.value.length - 1))
 const featuredCount = computed(() => templateList.value.filter(t => featuredIds.value.has(t.id)).length)
 const activeCount = computed(() => templateList.value.filter(t => activeStatusMap.value[t.id] !== false).length)
 
+const draftCount = computed(() => totalTemplatesCount.value - activeCount.value)
+const activePercent = computed(() =>
+  totalTemplatesCount.value ? Math.round((activeCount.value / totalTemplatesCount.value) * 100) : 0
+)
+const featuredPercent = computed(() =>
+  totalTemplatesCount.value ? Math.round((featuredCount.value / totalTemplatesCount.value) * 100) : 0
+)
+const draftPercent = computed(() =>
+  totalTemplatesCount.value ? Math.round((draftCount.value / totalTemplatesCount.value) * 100) : 0
+)
+
+const analyticsCategories = computed(() => {
+  const grouped = new Map<string, { count: number; pages: number }>()
+  templateList.value.forEach((t) => {
+    const key = (t.industry || 'KHÁC').trim() || 'KHÁC'
+    const current = grouped.get(key) ?? { count: 0, pages: 0 }
+    current.count += 1
+    current.pages += Number(t.pages) || 0
+    grouped.set(key, current)
+  })
+
+  const entries = [...grouped.entries()]
+    .sort((a, b) => b[1].count - a[1].count || a[0].localeCompare(b[0]))
+    .slice(0, 8)
+  const maxCount = Math.max(1, ...entries.map(([, stat]) => stat.count))
+  const tones = ['emerald', 'blue', 'amber', 'purple'] as const
+
+  return entries.map(([label, stat], index) => ({
+    label,
+    count: stat.count,
+    pages: stat.pages,
+    ratio: Math.max(8, Math.round((stat.count / maxCount) * 100)),
+    tone: tones[index % tones.length]
+  }))
+})
+
+function formatActivityTime(timestamp: number): string {
+  const date = new Date(timestamp)
+  if (Number.isNaN(date.getTime())) return '—'
+  return date.toLocaleString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+function loadActivityLog() {
+  try {
+    const saved = localStorage.getItem(ACTIVITY_STORAGE_KEY)
+    if (!saved) return
+    const parsed = JSON.parse(saved)
+    if (Array.isArray(parsed)) {
+      activityLog.value = parsed
+        .filter((entry): entry is ActivityEntry =>
+          !!entry &&
+          typeof entry === 'object' &&
+          typeof entry.at === 'number' &&
+          typeof entry.action === 'string' &&
+          typeof entry.detail === 'string'
+        )
+        .slice(0, 50)
+    }
+  } catch (e) {
+    console.error('Failed to load CMS activity log', e)
+  }
+}
+
+function saveActivityLog() {
+  try {
+    localStorage.setItem(ACTIVITY_STORAGE_KEY, JSON.stringify(activityLog.value.slice(0, 50)))
+  } catch (e) {
+    console.error('Failed to save CMS activity log', e)
+  }
+}
+
+function logActivity(action: string, detail: string) {
+  activityLog.value.unshift({
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    at: Date.now(),
+    action,
+    detail,
+    actor: currentUser.value || 'system'
+  })
+  activityLog.value = activityLog.value.slice(0, 50)
+  saveActivityLog()
+}
+
+function clearActivityLog() {
+  if (!confirm('Xóa toàn bộ nhật ký hoạt động trên trình duyệt này?')) return
+  activityLog.value = []
+  saveActivityLog()
+  showToast('Đã xóa nhật ký hoạt động.')
+}
+
+function runCatalogValidation() {
+  const list = templateList.value
+  const schemaIssues: string[] = []
+  const metadataIssues: string[] = []
+  const linkIssues: string[] = []
+  const seenIds = new Set<string>()
+  const seenSlugs = new Set<string>()
+  const requiredFields: Array<[keyof Template, string]> = [
+    ['id', 'id'],
+    ['slug', 'slug'],
+    ['name', 'name'],
+    ['category', 'category'],
+    ['industry', 'industry']
+  ]
+  const hexColor = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
+
+  list.forEach((t) => {
+    const id = String(t.id || '').trim()
+    const slug = String(t.slug || '').trim()
+    const label = id || '(chưa có id)'
+
+    requiredFields.forEach(([field, fieldLabel]) => {
+      if (!String(t[field] ?? '').trim()) schemaIssues.push(`${label}: thiếu ${fieldLabel}`)
+    })
+    if (id && seenIds.has(id)) schemaIssues.push(`id trùng: ${id}`)
+    if (slug && seenSlugs.has(slug)) schemaIssues.push(`slug trùng: ${slug}`)
+    if (id) seenIds.add(id)
+    if (slug) seenSlugs.add(slug)
+
+    if (!hexColor.test(String(t.accent || ''))) metadataIssues.push(`${label}: accent không hợp lệ`)
+    if (!hexColor.test(String(t.accentSecondary || ''))) {
+      metadataIssues.push(`${label}: accentSecondary không hợp lệ`)
+    }
+    if (!Number.isFinite(Number(t.pages)) || Number(t.pages) <= 0) {
+      metadataIssues.push(`${label}: pages phải > 0`)
+    }
+    if (!Array.isArray(t.features) || !Array.isArray(t.tags) || !Array.isArray(t.techStack)) {
+      metadataIssues.push(`${label}: features/tags/techStack phải là mảng`)
+    }
+  })
+
+  const ids = new Set(list.map((t) => t.id))
+  featuredIds.value.forEach((id) => {
+    if (!ids.has(id)) linkIssues.push(`featured trỏ template không tồn tại: ${id}`)
+  })
+  Object.keys(activeStatusMap.value).forEach((id) => {
+    if (!ids.has(id)) linkIssues.push(`trạng thái trỏ template không tồn tại: ${id}`)
+  })
+
+  const issueGroups = [schemaIssues, metadataIssues, linkIssues]
+  validationChecks.value = validationChecks.value.map((check, index) => {
+    const issues = issueGroups[index] ?? []
+    const status: CheckStatus = issues.length === 0 ? 'pass' : issues.length > 3 ? 'fail' : 'warn'
+    const detail = issues.length === 0
+      ? `Đạt ${list.length}/${list.length} template.`
+      : `${issues.slice(0, 3).join('; ')}${issues.length > 3 ? ` (+${issues.length - 3})` : ''}`
+    return { ...check, status, detail }
+  })
+
+  lastValidationAt.value = Date.now()
+  const totalIssues = issueGroups.reduce((sum, issues) => sum + issues.length, 0)
+  showToast(
+    totalIssues === 0
+      ? `Kiểm định ${list.length} template: tất cả đạt.`
+      : `Kiểm định ${list.length} template: ${totalIssues} vấn đề cần xử lý.`
+  )
+  logActivity('Kiểm định catalog', `${list.length} template · ${totalIssues} vấn đề`)
+}
+
 // Actions
 function toggleFeatured(id: string) {
-  if (featuredIds.value.has(id)) {
+  const template = templateList.value.find((t) => t.id === id)
+  const label = template?.name || id
+  const isAdding = !featuredIds.value.has(id)
+
+  if (!isAdding) {
     featuredIds.value.delete(id)
-    showToast(`Đã bỏ đánh dấu nổi bật`)
+    saveToLocalStorage()
+    logActivity('Cập nhật nổi bật', `${label}: bỏ khỏi danh sách nổi bật`)
+    showToast('Đã bỏ đánh dấu nổi bật')
   } else {
     featuredIds.value.add(id)
+    saveToLocalStorage()
+    logActivity('Cập nhật nổi bật', `${label}: thêm vào danh sách nổi bật`)
     showToast(`Đã thêm vào danh sách nổi bật ★`)
   }
 }
 
 function toggleStatus(id: string) {
+  const template = templateList.value.find((t) => t.id === id)
+  const label = template?.name || id
   activeStatusMap.value[id] = !activeStatusMap.value[id]
+  saveToLocalStorage()
   const status = activeStatusMap.value[id] ? 'Hoạt động' : 'Bản nháp (Tạm ẩn)'
+  logActivity('Cập nhật trạng thái', `${label}: ${status}`)
   showToast(`Template ${id} chuyển sang: ${status}`)
 }
 
@@ -208,8 +472,8 @@ function openCreateModal() {
     icon: 'sparkles',
     features: ['Thiết kế chuẩn conversion', 'Tối ưu tốc độ tải 100/100', 'Mobile-first responsive'],
     highlights: [
-      { label: 'Tỉ lệ chuyển đổi', value: '+35%' },
-      { label: 'Lượt tải', value: '1.2K' }
+      { label: 'Luồng triển khai', value: '5 bước' },
+      { label: 'Số trang mặc định', value: '5 trang' }
     ],
     tags: ['Landing Page', 'Responsive', 'Modern'],
     fileSize: '240 KB',
@@ -231,20 +495,29 @@ function saveTemplate() {
     return
   }
 
+  let logAction = ''
+  let logDetail = ''
+
   if (isCreatingNew.value) {
     const newTpl = editingTemplate.value as Template
     templateList.value.unshift(newTpl)
     activeStatusMap.value[newTpl.id] = true
+    logAction = 'Tạo template'
+    logDetail = `${newTpl.name} (${newTpl.id})`
     showToast(`Đã tạo thành công template: ${newTpl.name}`)
   } else {
     const idx = templateList.value.findIndex(t => t.id === editingTemplate.value.id)
     if (idx !== -1) {
       templateList.value[idx] = editingTemplate.value as Template
+      logAction = 'Cập nhật template'
+      logDetail = `${editingTemplate.value.name} (${editingTemplate.value.id})`
       showToast(`Đã cập nhật template: ${editingTemplate.value.name}`)
     }
   }
 
+  syncUiState()
   saveToLocalStorage()
+  if (logAction) logActivity(logAction, logDetail)
   isEditModalOpen.value = false
 }
 
@@ -256,9 +529,12 @@ function confirmDelete(template: Template) {
 function executeDelete() {
   if (!templateToDelete.value) return
   const id = templateToDelete.value.id
+  const label = templateToDelete.value.name
   templateList.value = templateList.value.filter(t => t.id !== id)
+  syncUiState()
   saveToLocalStorage()
-  showToast(`Đã xóa template: ${templateToDelete.value.name}`)
+  logActivity('Xóa template', `${label} (${id})`)
+  showToast(`Đã xóa template: ${label}`)
   isDeleteModalOpen.value = false
   templateToDelete.value = null
 }
@@ -270,7 +546,9 @@ function duplicateTemplate(t: Template) {
   copy.name = `${t.name} (Bản sao)`
   templateList.value.unshift(copy)
   activeStatusMap.value[copy.id] = true
+  syncUiState()
   saveToLocalStorage()
+  logActivity('Nhân bản template', `${copy.name} ← ${t.name}`)
   showToast(`Đã nhân bản template: ${copy.name}`)
 }
 
@@ -288,6 +566,7 @@ function exportCatalogJson() {
   document.body.appendChild(downloadAnchor)
   downloadAnchor.click()
   downloadAnchor.remove()
+  logActivity('Xuất catalog', `Đã xuất ${templateList.value.length} templates ra JSON`)
   showToast('Đã xuất file catalog JSON thành công!')
 }
 
@@ -304,7 +583,9 @@ function triggerImport() {
         const parsed = JSON.parse(event.target?.result as string)
         if (Array.isArray(parsed) && parsed.length > 0) {
           templateList.value = parsed
+          syncUiState()
           saveToLocalStorage()
+          logActivity('Nhập catalog', `Đã nhập ${parsed.length} templates từ file JSON`)
           showToast(`Nhập thành công ${parsed.length} templates!`)
         } else {
           alert('File JSON không đúng định dạng mảng templates.')
@@ -321,7 +602,9 @@ function triggerImport() {
 function resetToDefaults() {
   if (confirm('Bạn có chắc muốn khôi phục danh sách templates gốc từ mã nguồn? Mọi thay đổi chưa export sẽ bị ghi đè.')) {
     templateList.value = JSON.parse(JSON.stringify(defaultTemplates))
+    syncUiState()
     saveToLocalStorage()
+    logActivity('Khôi phục catalog', `Đã khôi phục ${templateList.value.length} templates mặc định`)
     showToast('Đã khôi phục danh sách templates về mặc định!')
   }
 }
@@ -638,7 +921,7 @@ function viewFullPreview(id: string) {
               <div class="kpi-value">{{ totalTemplatesCount }} <span class="kpi-sub">gói</span></div>
               <div class="kpi-label">{{ totalPagesCount }} trang landing pages</div>
             </div>
-            <div class="kpi-badge success">+1 Mẫu Bảo Hiểm</div>
+            <div class="kpi-badge success">{{ activeCount }} active</div>
           </div>
 
           <div class="kpi-card">
@@ -649,10 +932,10 @@ function viewFullPreview(id: string) {
               </svg>
             </div>
             <div class="kpi-content">
-              <div class="kpi-value">148.2K</div>
-              <div class="kpi-label">Lượt xem & tương tác</div>
+              <div class="kpi-value">{{ featuredCount }}</div>
+              <div class="kpi-label">Template nổi bật</div>
             </div>
-            <div class="kpi-badge info">+18.4% tháng này</div>
+            <div class="kpi-badge info">{{ featuredPercent }}% catalog</div>
           </div>
 
           <div class="kpi-card">
@@ -662,10 +945,10 @@ function viewFullPreview(id: string) {
               </svg>
             </div>
             <div class="kpi-content">
-              <div class="kpi-value">34.8K</div>
-              <div class="kpi-label">Lượt tải & Git clone</div>
+              <div class="kpi-value">{{ totalPagesCount }}</div>
+              <div class="kpi-label">Tổng số trang template</div>
             </div>
-            <div class="kpi-badge success">23.5% Chuyển đổi</div>
+            <div class="kpi-badge success">{{ totalIndustries }} ngành</div>
           </div>
 
           <div class="kpi-card">
@@ -675,10 +958,10 @@ function viewFullPreview(id: string) {
               </svg>
             </div>
             <div class="kpi-content">
-              <div class="kpi-value">99.2<span class="kpi-sub">/100</span></div>
-              <div class="kpi-label">Lighthouse Performance</div>
+              <div class="kpi-value">{{ draftCount }}</div>
+              <div class="kpi-label">Bản nháp / tạm ẩn</div>
             </div>
-            <div class="kpi-badge success">100% Core Vitals</div>
+            <div class="kpi-badge info">{{ activityLog.length }} hoạt động</div>
           </div>
         </div>
       </div>
@@ -1037,67 +1320,50 @@ function viewFullPreview(id: string) {
       <div class="container">
         <div class="analytics-grid">
           <div class="analytics-card">
-            <h3 class="card-heading">Lượt Tải & Xem Theo Danh Mục Hot</h3>
-            <div class="chart-bars-list">
-              <div class="chart-row">
-                <span class="cr-label">INSURANCE (Bảo Hiểm)</span>
-                <div class="cr-track"><div class="cr-fill emerald" style="width: 95%;"></div></div>
-                <span class="cr-val">28.4K (Mới ra mắt)</span>
-              </div>
-              <div class="chart-row">
-                <span class="cr-label">CRM & Pipeline</span>
-                <div class="cr-track"><div class="cr-fill blue" style="width: 86%;"></div></div>
-                <span class="cr-val">24.2K</span>
-              </div>
-              <div class="chart-row">
-                <span class="cr-label">E-COMMERCE (Sale Pro)</span>
-                <div class="cr-track"><div class="cr-fill amber" style="width: 78%;"></div></div>
-                <span class="cr-val">21.8K</span>
-              </div>
-              <div class="chart-row">
-                <span class="cr-label">REALESTATE (BĐS Nhà Tốt)</span>
-                <div class="cr-track"><div class="cr-fill purple" style="width: 71%;"></div></div>
-                <span class="cr-val">19.5K</span>
-              </div>
-              <div class="chart-row">
-                <span class="cr-label">BAZI & Numerology</span>
-                <div class="cr-track"><div class="cr-fill blue" style="width: 64%;"></div></div>
-                <span class="cr-val">17.9K</span>
-              </div>
-              <div class="chart-row">
-                <span class="cr-label">FOOD & F&B (Lẩu Đêm)</span>
-                <div class="cr-track"><div class="cr-fill amber" style="width: 55%;"></div></div>
-                <span class="cr-val">15.1K</span>
+            <h3 class="card-heading">Phân Bố Template Theo Ngành</h3>
+            <p class="analytics-hint">
+              {{ totalTemplatesCount }} template · {{ totalPagesCount }} trang · dữ liệu từ catalog hiện hành.
+            </p>
+            <div v-if="analyticsCategories.length === 0" class="analytics-empty">
+              Chưa có template để thống kê. Thêm template hoặc khôi phục catalog mặc định.
+            </div>
+            <div v-else class="chart-bars-list">
+              <div v-for="stat in analyticsCategories" :key="stat.label" class="chart-row">
+                <span class="cr-label" :title="stat.label">{{ stat.label }}</span>
+                <div class="cr-track">
+                  <div class="cr-fill" :class="stat.tone" :style="{ width: stat.ratio + '%' }"></div>
+                </div>
+                <span class="cr-val">{{ stat.count }} mẫu · {{ stat.pages }}p</span>
               </div>
             </div>
           </div>
 
           <div class="analytics-card">
-            <h3 class="card-heading">Phân Bổ Thiết Bị Khách Hàng</h3>
+            <h3 class="card-heading">Tổng Quan Kho Template</h3>
             <div class="device-pie-mock">
               <div class="device-item">
                 <div class="di-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
                 <div class="di-info">
-                  <strong>Máy tính bàn (Desktop)</strong>
-                  <span>58.4% tổng truy cập</span>
+                  <strong>Template hoạt động</strong>
+                  <span>{{ activePercent }}% tổng catalog</span>
                 </div>
-                <div class="di-val text-success">98.5% Awwwards score</div>
+                <div class="di-val text-success">{{ activeCount }}/{{ totalTemplatesCount }}</div>
               </div>
               <div class="device-item">
-                <div class="di-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+                <div class="di-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.9 6.3 6.9.9-5 4.8 1.2 6.9L12 17.8 6 20.9l1.2-6.9-5-4.8 6.9-.9z"/></svg></div>
                 <div class="di-info">
-                  <strong>Điện thoại (Mobile)</strong>
-                  <span>36.2% tổng truy cập</span>
+                  <strong>Template nổi bật</strong>
+                  <span>{{ featuredPercent }}% tổng catalog</span>
                 </div>
-                <div class="di-val text-success">100% Touch target pass</div>
+                <div class="di-val text-success">{{ featuredCount }}</div>
               </div>
               <div class="device-item">
-                <div class="di-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+                <div class="di-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18"/><path d="M10.6 10.6A2 2 0 0012 14a2 2 0 001.4-.6"/><path d="M9.9 5.2A9.8 9.8 0 0112 5c5 0 9 4 9 7a8.7 8.7 0 01-2.1 3.8"/><path d="M6.6 6.6A9.7 9.7 0 003 12c0 3 4 7 9 7 1.4 0 2.7-.3 3.8-.9"/></svg></div>
                 <div class="di-info">
-                  <strong>Máy tính bảng (Tablet)</strong>
-                  <span>5.4% tổng truy cập</span>
+                  <strong>Bản nháp / tạm ẩn</strong>
+                  <span>{{ draftPercent }}% tổng catalog</span>
                 </div>
-                <div class="di-val text-muted">Fluid grid OK</div>
+                <div class="di-val text-muted">{{ draftCount }}</div>
               </div>
             </div>
           </div>
@@ -1111,34 +1377,24 @@ function viewFullPreview(id: string) {
         <div class="deploy-card">
           <div class="deploy-header">
             <div>
-              <h3>Tình Trạng Triển Khai & Kiểm Định Bộ Mã Nguồn</h3>
-              <p>Mỗi template được kiểm tra static health check trước khi đóng gói phân phối.</p>
+              <h3>Kiểm Định Catalog Template</h3>
+              <p>Kiểm tra metadata, định danh và liên kết dữ liệu trên catalog hiện hành.</p>
             </div>
-            <button class="btn btn-primary" @click="showToast('Đã đồng bộ kiểm tra toàn bộ 20 templates!')">
-              Chạy Kiểm Định Toàn Diện
+            <button class="btn btn-primary" @click="runCatalogValidation">
+              Chạy Kiểm Định Catalog
             </button>
           </div>
+          <p v-if="lastValidationAt" class="deploy-summary">
+            Lần kiểm định cuối: {{ formatActivityTime(lastValidationAt) }} · {{ totalTemplatesCount }} template
+          </p>
 
           <div class="check-list">
-            <div class="check-item">
-              <span class="ci-badge pass">PASS</span>
+            <div v-for="check in validationChecks" :key="check.key" class="check-item">
+              <span class="ci-badge" :class="check.status">{{ check.status.toUpperCase() }}</span>
               <div class="ci-text">
-                <strong>Static Asset Zero-Dependency</strong>
-                <p>100% templates chạy trực tiếp từ browser mà không cần npm build phức tạp.</p>
-              </div>
-            </div>
-            <div class="check-item">
-              <span class="ci-badge pass">PASS</span>
-              <div class="ci-text">
-                <strong>UTF-8 Tiếng Việt Có Dấu & Chuẩn Typography</strong>
-                <p>Đã rà soát cập nhật ngôn ngữ, dấu câu tự nhiên, font Geist / Plus Jakarta Sans chuẩn.</p>
-              </div>
-            </div>
-            <div class="check-item">
-              <span class="ci-badge pass">PASS</span>
-              <div class="ci-text">
-                <strong>Đóng gói ZIP Đa Nền Tảng (HTML, Next.js, Vue 3)</strong>
-                <p>Tương thích hệ thống useDownload.ts của framework qua JSZip.</p>
+                <strong>{{ check.label }}</strong>
+                <p>{{ check.description }}</p>
+                <p v-if="check.status !== 'idle'" class="ci-detail">{{ check.detail }}</p>
               </div>
             </div>
           </div>
@@ -1150,30 +1406,25 @@ function viewFullPreview(id: string) {
     <main v-else-if="activeTab === 'logs'" class="cms-main-content">
       <div class="container">
         <div class="logs-card">
-          <h3 class="logs-title">Nhật Ký Hoạt Động Cập Nhật Framework</h3>
-          <div class="log-timeline">
-            <div class="log-item">
-              <span class="log-time">Vừa xong</span>
+          <div class="logs-header">
+            <h3 class="logs-title">Nhật Ký Hoạt Động CMS</h3>
+            <button v-if="activityLog.length" class="btn btn-ghost btn-sm" @click="clearActivityLog">
+              Xóa nhật ký
+            </button>
+          </div>
+          <p class="logs-hint">
+            Các thao tác quản trị trên catalog được ghi lại trong trình duyệt này.
+          </p>
+          <div v-if="activityLog.length === 0" class="analytics-empty">
+            Chưa có hoạt động nào. Tạo, sửa hoặc kiểm định template để bắt đầu ghi nhật ký.
+          </div>
+          <div v-else class="log-timeline">
+            <div v-for="entry in activityLog" :key="entry.id" class="log-item">
+              <span class="log-time">{{ formatActivityTime(entry.at) }} · {{ entry.actor }}</span>
               <div class="log-dot"></div>
               <div class="log-desc">
-                <strong>Phát hành Template Bảo Hiểm (Aegis Bảo An)</strong>
-                <p>Thêm trang web bán bảo hiểm toàn diện: Sức khỏe CarePlus, Nhân thọ An Thịnh, Xe cơ giới AutoCare, Du lịch quốc tế, công cụ tính phí 30s và mạng lưới 680+ bệnh viện.</p>
-              </div>
-            </div>
-            <div class="log-item">
-              <span class="log-time">10 phút trước</span>
-              <div class="log-dot"></div>
-              <div class="log-desc">
-                <strong>Xây dựng CMS Dashboard Quản Trị Templates</strong>
-                <p>Thêm trang CMS Dashboard với CRUD, modal preview, export/import JSON, kiểm tra hiệu suất và quản lý trạng thái.</p>
-              </div>
-            </div>
-            <div class="log-item">
-              <span class="log-time">25 phút trước</span>
-              <div class="log-dot"></div>
-              <div class="log-desc">
-                <strong>Rà soát & Chuẩn Hóa Typography Toàn Bộ 19 Templates Cũ</strong>
-                <p>Sửa lỗi chính tả tiếng Việt (Trường Mầm Non, Thánh Quang Parish, TechHub PC Gaming) và chuẩn hóa bảng mã.</p>
+                <strong>{{ entry.action }}</strong>
+                <p>{{ entry.detail }}</p>
               </div>
             </div>
           </div>
@@ -2775,6 +3026,22 @@ function viewFullPreview(id: string) {
   margin-bottom: 24px;
 }
 
+.analytics-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin: -16px 0 20px;
+}
+
+.analytics-empty {
+  padding: 20px;
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .chart-bars-list {
   display: flex;
   flex-direction: column;
@@ -2896,6 +3163,13 @@ function viewFullPreview(id: string) {
   color: var(--text-secondary);
 }
 
+.deploy-summary {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+  margin: -14px 0 20px;
+}
+
 .check-list {
   display: flex;
   flex-direction: column;
@@ -2925,6 +3199,28 @@ function viewFullPreview(id: string) {
   color: var(--accent);
 }
 
+.ci-badge.warn {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.ci-badge.fail {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.ci-badge.idle {
+  background: var(--bg-elevated);
+  color: var(--text-tertiary);
+}
+
+.ci-detail {
+  font-family: var(--font-mono);
+  font-size: 11.5px !important;
+  color: var(--text-tertiary) !important;
+  margin-top: 6px !important;
+}
+
 .ci-text strong {
   display: block;
   font-size: 14px;
@@ -2938,9 +3234,23 @@ function viewFullPreview(id: string) {
 }
 
 /* ─── LOGS TAB ─── */
+.logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
 .logs-title {
   font-size: 18px;
   color: var(--text-primary);
+  margin-bottom: 0;
+}
+
+.logs-hint {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
   margin-bottom: 24px;
 }
 

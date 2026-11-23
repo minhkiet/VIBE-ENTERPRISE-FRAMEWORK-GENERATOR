@@ -167,17 +167,6 @@
                             Command="{Binding DataContext.ECCViewModel.RefreshStatusCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <CheckBox Content="{Binding DataContext.ECCViewModel.EnableHooksLabel, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"
-                              IsChecked="{Binding DataContext.ECCViewModel.EnableHooks, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              Style="{StaticResource ModernCheckBoxStyle}"
-                              VerticalAlignment="Center" Margin="0,0,16,0"/>
-                    <ComboBox ItemsSource="{Binding DataContext.ECCViewModel.Profiles, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                             SelectedItem="{Binding DataContext.ECCViewModel.SelectedProfile, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                             DisplayMemberPath="Name"
-                             Style="{StaticResource ModernComboBoxStyle}"
-                             MinWidth="120"/>
-                </StackPanel>
             </Grid>
 
             <!-- === Harness Selection === -->
@@ -336,7 +325,7 @@
                         <TextBlock Text="{Binding DataContext.ECCViewModel.ClaudeCodeLabel, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"
                                    FontFamily="{StaticResource UIFont}" FontSize="12" FontWeight="SemiBold"
                                    Foreground="{StaticResource Slate600Brush}"/>
-                        <TextBlock Grid.Column="1" Text="npx ecc-universal@2.2.2 install --profile core --target claude"
+                        <TextBlock Grid.Column="1" Text="python -m vibe_framework vibe sync --tool claude-code --workspace &quot;&lt;workspace&gt;&quot;"
                                    FontFamily="{StaticResource MonoFont}" FontSize="11"
                                    Foreground="{StaticResource Indigo600Brush}"/>
                     </Grid>
@@ -349,7 +338,7 @@
                         <TextBlock Text="{Binding DataContext.ECCViewModel.CodexLabel, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"
                                    FontFamily="{StaticResource UIFont}" FontSize="12" FontWeight="SemiBold"
                                    Foreground="{StaticResource Slate600Brush}"/>
-                        <TextBlock Grid.Column="1" Text="npx ecc-universal@2.2.2 install --profile core --target codex"
+                        <TextBlock Grid.Column="1" Text="python -m vibe_framework vibe sync --tool codex --workspace &quot;&lt;workspace&gt;&quot;"
                                    FontFamily="{StaticResource MonoFont}" FontSize="11"
                                    Foreground="{StaticResource Indigo600Brush}"/>
                     </Grid>
@@ -362,7 +351,7 @@
                         <TextBlock Text="{Binding DataContext.ECCViewModel.CursorLabel, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"
                                    FontFamily="{StaticResource UIFont}" FontSize="12" FontWeight="SemiBold"
                                    Foreground="{StaticResource Slate600Brush}"/>
-                        <TextBlock Grid.Column="1" Text="./install.sh --profile minimal --target cursor"
+                        <TextBlock Grid.Column="1" Text="python -m vibe_framework vibe sync --tool cursor --workspace &quot;&lt;workspace&gt;&quot;"
                                    FontFamily="{StaticResource MonoFont}" FontSize="11"
                                    Foreground="{StaticResource Indigo600Brush}"/>
                     </Grid>
@@ -375,7 +364,7 @@
                         <TextBlock Text="{Binding DataContext.ECCViewModel.GuidedSetupLabel, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"
                                    FontFamily="{StaticResource UIFont}" FontSize="12" FontWeight="SemiBold"
                                    Foreground="{StaticResource Slate600Brush}"/>
-                        <TextBlock Grid.Column="1" Text="npx ecc-universal@2.2.2 install --guided"
+                        <TextBlock Grid.Column="1" Text="python -m vibe_framework vibe detect --workspace &quot;&lt;workspace&gt;&quot;"
                                    FontFamily="{StaticResource MonoFont}" FontSize="11"
                                    Foreground="{StaticResource Indigo600Brush}"/>
                     </Grid>

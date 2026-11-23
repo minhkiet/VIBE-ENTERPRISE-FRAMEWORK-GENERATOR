@@ -2,7 +2,8 @@
 # Build vibe-setup.zip from .cursor contents and staged MCP tools
 # ============================================================
 param(
-    [string]$Config = "Debug"
+    [string]$Config = "Debug",
+    [string]$PublishDir = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -11,7 +12,14 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 # RepoRoot is parent of vibe-setup-gui-wpf
 $RepoRoot = Split-Path -Parent $ScriptDir
 $SourceDir = Join-Path $RepoRoot ".cursor"
-$BuildDir = Join-Path $ScriptDir "bin\$Config\net8.0-windows\win-x64\publish"
+if ([string]::IsNullOrWhiteSpace($PublishDir)) {
+    $PublishDir = $env:VIBE_PUBLISH_DIR
+}
+if ([string]::IsNullOrWhiteSpace($PublishDir)) {
+    $BuildDir = Join-Path $ScriptDir "bin\$Config\net8.0-windows\win-x64\publish"
+} else {
+    $BuildDir = [System.IO.Path]::GetFullPath($PublishDir)
+}
 $OutputZip = Join-Path $BuildDir "vibe-setup.zip"
 $LegacyOutputZip = Join-Path $BuildDir "cursor-setup.zip"
 $TempZip = Join-Path $env:TEMP "cursor-setup-build-$([System.Guid]::NewGuid().ToString('N')).zip"

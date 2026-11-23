@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useIntersectionObserver } from '../composables/useIntersectionObserver'
+import { copyText } from '../composables/useClipboard'
 import { templates } from '../data/templates'
 
 const sectionRef = ref<HTMLElement | null>(null)
@@ -48,7 +49,7 @@ const methods: InstallMethod[] = [
     steps: [
       {
         title: 'Truy cập trang Release mới nhất',
-        detail: 'Mở trình duyệt và vào GitHub Releases. Tìm bản Latest (ví dụ v1.3.0).',
+        detail: 'Mở trình duyệt và vào GitHub Releases. Tìm bản Latest (ví dụ v1.7.0).',
         code: 'https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR/releases/latest',
         codeLabel: 'URL'
       },
@@ -186,13 +187,13 @@ const methods: InstallMethod[] = [
       {
         title: 'Cài đặt package ở chế độ editable',
         detail: 'Editable mode (-e) giúp bạn sửa source code trong vibe_framework/ mà không cần reinstall. Phù hợp khi bạn muốn customize framework.',
-        code: 'pip install -e ./vibe_framework',
+        code: 'pip install -e ".[all]"',
         codeLabel: 'Terminal'
       },
       {
         title: 'Verify CLI hoạt động',
         detail: 'Sau khi cài, lệnh vibe-framework và python -m vibe_framework đều khả dụng. Version phải khớp với __version__ trong package.',
-        code: 'vibe-framework --version\n# hoặc\npython -m vibe_framework --version\n# Vibe Framework 1.3.0',
+        code: 'vibe-framework --version\n# hoặc\npython -m vibe_framework --version\n# Vibe Framework 1.7.0',
         codeLabel: 'Verify'
       },
       {
@@ -204,8 +205,8 @@ const methods: InstallMethod[] = [
       },
       {
         title: 'Thử một số lệnh CLI',
-        detail: 'vibe_framework CLI có 11 subcommands. Phổ biến nhất: warm (preload cache), stats (xem số liệu), scan (INDEX khô), ask (one-shot Workflow).',
-        code: 'python -m vibe_framework --help\npython -m vibe_framework stats\npython -m vibe_framework ask "summarize the framework"',
+        detail: 'vibe_framework CLI có 20 subcommands, gồm vibe (sync/detect multi-tool), redis, prefect, ecc và spec. Phổ biến: warm, stats, scan, ask.',
+        code: 'python -m vibe_framework --help\npython -m vibe_framework vibe detect\npython -m vibe_framework vibe sync --dry-run\npython -m vibe_framework ask "summarize the framework"',
         codeLabel: 'Khám phá'
       },
       {
@@ -214,15 +215,15 @@ const methods: InstallMethod[] = [
       }
     ],
     verify: [
-      { ok: true, label: 'vibe-framework --version in đúng số version', hint: 'Hiện tại là 1.3.0' },
-      { ok: true, label: 'python -m vibe_framework --help liệt kê 11 subcommands', hint: 'serve, ask, warm, stats, scan, index, graph, clear-cache, serve-graph, tdam' },
+      { ok: true, label: 'vibe-framework --version in đúng số version', hint: 'Hiện tại là 1.7.0' },
+      { ok: true, label: 'python -m vibe_framework --help liệt kê 20 subcommands', hint: 'serve, ask, ..., vibe, redis, prefect, ecc, spec' },
       { ok: true, label: 'python -m vibe_framework serve mở được dashboard', hint: 'Truy cập http://127.0.0.1:8765' },
       { ok: true, label: 'python -m vibe_framework stats in JSON số liệu', hint: 'Phải có keys: assets, memory, cache' }
     ],
     troubleshooting: [
       {
         problem: 'ModuleNotFoundError: No module named \'vibe_framework\'',
-        solution: 'Bạn quên bước pip install -e ./vibe_framework. Hoặc venv đang không active. Kiểm tra: which python và which pip phải cùng venv.'
+        solution: 'Bạn quên bước pip install -e ".[all]" từ thư mục repo. Hoặc venv đang không active. Kiểm tra: which python và which pip phải cùng venv.'
       },
       {
         problem: 'pydantic VersionConflict hoặc ImportError pydantic',
@@ -242,7 +243,7 @@ const methods: InstallMethod[] = [
       },
       {
         problem: 'Sau khi sửa source code, CLI vẫn chạy code cũ',
-        solution: 'Editable mode tự reload khi import. Nếu không: pip install -e ./vibe_framework --force-reinstall --no-deps.'
+        solution: 'Editable mode tự reload khi import. Nếu không: pip install -e ".[all]" --force-reinstall --no-deps.'
       }
     ]
   },
@@ -432,8 +433,8 @@ const navItems = computed(() => [
 const activeSection = ref<string>('overview')
 const copiedGuideCmd = ref<string | null>(null)
 
-function copyGuideCommand(cmd: string) {
-  navigator.clipboard.writeText(cmd)
+async function copyGuideCommand(cmd: string) {
+  if (!(await copyText(cmd))) return
   copiedGuideCmd.value = cmd
   setTimeout(() => {
     copiedGuideCmd.value = null
@@ -505,12 +506,7 @@ function highlightCode(code: string): string {
 }
 
 async function copyCode(text: string) {
-  try {
-    await navigator.clipboard.writeText(text)
-    return true
-  } catch {
-    return false
-  }
+  return copyText(text)
 }
 
 const copiedKey = ref<string | null>(null)

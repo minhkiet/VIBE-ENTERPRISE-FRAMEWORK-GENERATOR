@@ -146,7 +146,7 @@ const layers = [
           <span class="tdam-dot tdam-dot-yellow"></span>
           <span class="tdam-dot tdam-dot-green"></span>
           <span class="tdam-terminal-name">vibe_framework · TDAM CLI</span>
-          <span class="tdam-terminal-tag">v1.3.0</span>
+          <span class="tdam-terminal-tag">v1.7.0</span>
         </header>
 
         <div class="tdam-terminal-body">

@@ -14,6 +14,17 @@ export interface Template {
   description: string
 }
 
+const TEMPLATE_EXTRA_FILES: Record<string, string[]> = {
+  'auto-showroom': ['app.js', 'car-detail.html', 'test-drive.html'],
+  crm: ['pricing.html'],
+  realestate: ['detail.html', 'pricing.html'],
+  sale: ['checkout.html'],
+  travel: ['booking.html', 'detail.html'],
+  'viet-restaurant': ['app.js', 'menu.html', 'reservation.html']
+}
+
+type TemplateFile = readonly [path: string, content: string]
+
 export function useDownload() {
   const downloadStatus = ref<DownloadStatus>('idle')
   const downloadFormat = ref<DownloadFormat>('html')
@@ -41,23 +52,29 @@ export function useDownload() {
     errorMessage.value = ''
 
     try {
-      // Fetch template files
+      // Fetch every file shipped with the template. script.js is optional because
+      // several CSS-first templates do not include JavaScript.
       const basePath = `/templates/${template.id}`
-      const [htmlRes, cssRes, jsRes] = await Promise.all([
-        fetch(`${basePath}/index.html`),
-        fetch(`${basePath}/styles.css`),
-        fetch(`${basePath}/script.js`)
-      ])
+      const paths = [
+        'index.html',
+        'styles.css',
+        'script.js',
+        ...(TEMPLATE_EXTRA_FILES[template.id] ?? [])
+      ]
+      const fetched = await Promise.all(paths.map(async (path): Promise<TemplateFile | null> => {
+        const res = await fetch(`${basePath}/${path}`)
+        return res.ok ? [path, await res.text()] : null
+      }))
+      const files = new Map<string, string>(
+        fetched.filter((entry): entry is TemplateFile => entry !== null)
+      )
 
-      if (!htmlRes.ok || !cssRes.ok || !jsRes.ok) {
+      const htmlContent = files.get('index.html')
+      const cssContent = files.get('styles.css')
+      if (!htmlContent || !cssContent) {
         throw new Error('Không thể tải các file template')
       }
-
-      const [htmlContent, cssContent, jsContent] = await Promise.all([
-        htmlRes.text(),
-        cssRes.text(),
-        jsRes.text()
-      ])
+      const jsContent = files.get('script.js') ?? ''
 
       downloadProgress.value = 40
 
@@ -65,11 +82,9 @@ export function useDownload() {
       const folderName = `${template.id}-landing`
 
       if (format === 'html') {
-        // Pure HTML/CSS/JS format
+        // Pure HTML/CSS/JS format, preserving every shipped page and asset
         const folder = zip.folder(folderName)!
-        folder.file('index.html', htmlContent)
-        folder.file('styles.css', cssContent)
-        folder.file('script.js', jsContent)
+        for (const [path, content] of files) folder.file(path, content)
         folder.file('README.md', generateHtmlReadme(template))
       } else if (format === 'nextjs') {
         // Next.js format
@@ -93,6 +108,10 @@ export function useDownload() {
 
         // Global styles
         folder.file('app/globals.css', generateGlobalCSS())
+        for (const [path, content] of files) {
+          if (['index.html', 'styles.css', 'script.js'].includes(path)) continue
+          folder.file(`public/${path}`, content)
+        }
       } else if (format === 'vue') {
         // Vue 3 format
         const folder = zip.folder(folderName)!
@@ -112,6 +131,10 @@ export function useDownload() {
         folder.file('README.md', generateVueReadme(template))
         folder.file('tsconfig.json', generateVueTSConfig())
         folder.file('env.d.ts', generateVueEnvTypes())
+        for (const [path, content] of files) {
+          if (['index.html', 'styles.css', 'script.js'].includes(path)) continue
+          folder.file(`public/${path}`, content)
+        }
       }
 
       downloadProgress.value = 70

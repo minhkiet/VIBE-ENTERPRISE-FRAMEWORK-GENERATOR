@@ -15,7 +15,7 @@ Features:
 Usage:
     >>> from vibe_framework import MemoryManager, MemoryTier
     >>> manager = MemoryManager()
-    >>> manager.store("project_info", {"name": "myapp"}, tier=MemoryTier.SESSION)
+    >>> manager.store("project_info", {"name": "myapp"}, tier=MemoryTier.HOT)
     >>> context = manager.retrieve("project_info")
     
     # With TDAM integration:

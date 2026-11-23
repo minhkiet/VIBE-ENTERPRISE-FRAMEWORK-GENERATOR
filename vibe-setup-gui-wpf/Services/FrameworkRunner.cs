@@ -58,20 +58,24 @@ namespace CursorSetupWpf.Services
         /// </summary>
         static string FindPython()
         {
+            var localPrograms = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Programs", "Python");
             var candidates = new[]
             {
                 "python",
                 "python3",
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "Programs", "Python", "Python311", "python.exe"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "Programs", "Python", "Python310", "python.exe"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "Programs", "Python", "Python39", "python.exe"),
+                ResolvePythonLauncher(),
+                Path.Combine(localPrograms, "Python313", "python.exe"),
+                Path.Combine(localPrograms, "Python312", "python.exe"),
+                Path.Combine(localPrograms, "Python311", "python.exe"),
+                Path.Combine(localPrograms, "Python310", "python.exe"),
+                Path.Combine(localPrograms, "Python39", "python.exe"),
             };
 
             foreach (var c in candidates)
             {
+                if (string.IsNullOrWhiteSpace(c)) continue;
                 try
                 {
                     var psi = new ProcessStartInfo
@@ -93,6 +97,37 @@ namespace CursorSetupWpf.Services
                 catch { }
             }
             return "python";
+        }
+
+        /// <summary>
+        /// Resolve the Windows `py -3` launcher to a concrete python.exe path.
+        /// </summary>
+        static string ResolvePythonLauncher()
+        {
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "py",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                };
+                psi.ArgumentList.Add("-3");
+                psi.ArgumentList.Add("-c");
+                psi.ArgumentList.Add("import sys; print(sys.executable)");
+
+                using var p = Process.Start(psi);
+                if (p == null || !p.WaitForExit(2000) || p.ExitCode != 0) return "";
+
+                var path = p.StandardOutput.ReadToEnd().Trim();
+                return File.Exists(path) ? path : "";
+            }
+            catch
+            {
+                return "";
+            }
         }
 
         /// <summary>
@@ -156,8 +191,8 @@ namespace CursorSetupWpf.Services
         /// <summary>
         /// Find vibe_framework module path by scanning common locations.
         /// Order: installPath/vibe_framework → installPath/../vibe_framework →
-        /// ~/.cursor/vibe_framework → AppContext.BaseDirectory/../vibe_framework
-        /// → AppContext.BaseDirectory/../../vibe_framework → current directory
+        /// AppContext.BaseDirectory ancestors → current directory ancestors →
+        /// project structure → ~/.cursor/vibe_framework as the last fallback.
         /// </summary>
         static string FindFrameworkModulePath(string installPath)
         {
@@ -170,9 +205,6 @@ namespace CursorSetupWpf.Services
                 // Relative to install path
                 Path.Combine(installPath, "vibe_framework"),
                 Path.Combine(installParent ?? "", "vibe_framework"),
-                // User profile default locations
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                    ".cursor", "vibe_framework"),
                 // Relative to AppContext.BaseDirectory (for development builds)
                 Path.Combine(AppContext.BaseDirectory, "vibe_framework"),
                 Path.Combine(AppContext.BaseDirectory, "..", "vibe_framework"),
@@ -215,7 +247,45 @@ namespace CursorSetupWpf.Services
             found = FindInProjectStructure(AppContext.BaseDirectory);
             if (!string.IsNullOrEmpty(found)) return found;
 
+            // Last fallback: a user-profile copy may be an older release.
+            var userCopy = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                ".cursor", "vibe_framework");
+            if (Directory.Exists(userCopy) &&
+                (File.Exists(Path.Combine(userCopy, "__init__.py")) ||
+                 File.Exists(Path.Combine(userCopy, "__main__.py"))))
+                return Path.GetFullPath(userCopy);
+
             return "";
+        }
+
+        /// <summary>
+        /// Check whether the current Python environment can import vibe_framework.
+        /// This keeps the GUI usable with an installed wheel, not only a source checkout.
+        /// </summary>
+        static bool CanImportFramework(string python)
+        {
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = python,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                };
+                psi.ArgumentList.Add("-c");
+                psi.ArgumentList.Add("import vibe_framework");
+
+                using var p = Process.Start(psi);
+                if (p == null) return false;
+                return p.WaitForExit(3000) && p.ExitCode == 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -244,20 +314,26 @@ namespace CursorSetupWpf.Services
                 LogAppended?.Invoke($"[DEBUG] Module path: {modulePath ?? "(null)"}");
                 LogAppended?.Invoke($"[DEBUG] Install path: {installPath}");
 
-                if (string.IsNullOrEmpty(modulePath))
+                var usingInstalledPackage = string.IsNullOrEmpty(modulePath) && CanImportFramework(python);
+                if (string.IsNullOrEmpty(modulePath) && !usingInstalledPackage)
                 {
-                    LogAppended?.Invoke("[FRAMEWORK] vibe_framework not found!");
-                    OutputReceived?.Invoke($"ERROR: vibe_framework module not found.\nInstall path: {installPath}");
+                    LogAppended?.Invoke("[FRAMEWORK] vibe_framework not found in source tree or Python environment.");
+                    OutputReceived?.Invoke(
+                        "ERROR: vibe_framework module not found. Install the wheel " +
+                        "(pip install vibe-framework) or keep the bundled vibe_framework folder next to the GUI.");
                     return;
                 }
 
-                string workingDir = Path.GetDirectoryName(modulePath) ?? installPath;
+                var workspace = string.IsNullOrWhiteSpace(installPath) ? Environment.CurrentDirectory : installPath;
+                string workingDir = string.IsNullOrEmpty(modulePath)
+                    ? workspace
+                    : Path.GetDirectoryName(modulePath) ?? workspace;
 
-                // Build Python path to include the framework directory
+                var arguments = VibeCli.BuildArguments(command, workspace);
+
                 var psi = new ProcessStartInfo
                 {
                     FileName = python,
-                    Arguments = $"-m vibe_framework {command} --root \"{installPath}\"",
                     WorkingDirectory = workingDir,
                     UseShellExecute = false,
                     CreateNoWindow = true,
@@ -266,8 +342,11 @@ namespace CursorSetupWpf.Services
                     StandardOutputEncoding = Encoding.UTF8,
                     StandardErrorEncoding = Encoding.UTF8,
                 };
+                foreach (var argument in arguments)
+                {
+                    psi.ArgumentList.Add(argument);
+                }
 
-                // Set PYTHONPATH so Python can locate vibe_framework
                 var env = psi.Environment;
                 env["PYTHONIOENCODING"] = "utf-8";
                 env["PYTHONUTF8"] = "1";
@@ -280,9 +359,15 @@ namespace CursorSetupWpf.Services
                         : existingPath + Path.PathSeparator + frameworkParent;
                 }
 
-                LogAppended?.Invoke($"[FRAMEWORK] Starting: {command}");
-                LogAppended?.Invoke($"         {python} -m vibe_framework {command} --root \"{installPath}\"");
-                LogAppended?.Invoke($"         PYTHONPATH={env["PYTHONPATH"]}");
+                LogAppended?.Invoke($"[FRAMEWORK] Starting: {VibeCli.FormatCommand(python, arguments)}");
+                if (usingInstalledPackage)
+                {
+                    LogAppended?.Invoke("[FRAMEWORK] Using vibe_framework installed in Python environment");
+                }
+                else if (!string.IsNullOrEmpty(frameworkParent))
+                {
+                    LogAppended?.Invoke($"         PYTHONPATH={env["PYTHONPATH"]}");
+                }
                 LogAppended?.Invoke($"         CWD={workingDir}");
 
                 _currentProcess = new Process { StartInfo = psi, EnableRaisingEvents = true };

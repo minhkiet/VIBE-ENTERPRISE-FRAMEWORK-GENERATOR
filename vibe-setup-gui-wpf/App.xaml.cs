@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using CursorSetupWpf.Services;
+using CursorSetupWpf.ViewModels;
 
 namespace CursorSetupWpf
 {
@@ -14,7 +16,7 @@ namespace CursorSetupWpf
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "CursorSetup", "cursor-setup-debug.log");
 
-        static void Log(string msg)
+        internal static void Log(string msg)
         {
             try
             {
@@ -47,6 +49,26 @@ namespace CursorSetupWpf
             };
 
             base.OnStartup(e);
+            var automation = AutomationArgs.Parse(e.Args);
+            Log("AUTO args=" + string.Join(" ", e.Args));
+            Log($"AUTO target={automation.Target} install={automation.AutoInstall} noDialogs={automation.NoDialogs}");
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (MainWindow?.DataContext is MainViewModel vm)
+                {
+                    vm.ApplyAutomation(automation);
+                    Log("AUTO vm applied");
+                    if (automation.AutoInstall && !string.IsNullOrWhiteSpace(automation.Target))
+                    {
+                        Log("AUTO install requested");
+                        _ = vm.RunAutomatedInstallAsync();
+                    }
+                }
+                else
+                {
+                    Log("AUTO vm unavailable");
+                }
+            }), DispatcherPriority.Loaded);
             Log("OnStartup END - MainWindow should now be visible");
         }
     }

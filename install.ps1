@@ -1,9 +1,9 @@
 # One-liner installation for Vibe Enterprise Framework
-# Usage: irm https://raw.githubusercontent.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR/main/install.ps1 | iex
-# Update: & {irm https://raw.githubusercontent.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR/main/install.ps1} -Update
+# Usage: irm https://raw.githubusercontent.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR/main/install.ps1 | iex
+# Update: & {irm https://raw.githubusercontent.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR/main/install.ps1} -Update
 
 param(
-    [string]$RepoUrl = "https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR",
+    [string]$RepoUrl = "https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR",
     [string]$Branch = "main",
     [switch]$Force,
     [switch]$Update

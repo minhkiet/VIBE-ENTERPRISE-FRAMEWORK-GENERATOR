@@ -20,7 +20,7 @@ pip install -r requirements.txt
 ## Sử dụng nhanh
 
 ```python
-from vibe_framework import ContextRouter, MemoryManager, SkillDiscovery
+from vibe_framework import ContextRouter, MemoryManager, SkillDiscovery, MemoryTier
 
 # Định tuyến request đến skill phù hợp
 router = ContextRouter()
@@ -29,7 +29,7 @@ print(f"Skill: {route.skill.value}, Độ tin cậy: {route.confidence}")
 
 # Quản lý context với memory
 memory = MemoryManager()
-memory.store("project_info", {"name": "myapp"}, tier=MemoryTier.SESSION)
+memory.store("project_info", {"name": "myapp"}, tier=MemoryTier.HOT)
 context = memory.retrieve("project_info")
 
 # Phát hiện skills áp dụng
@@ -66,6 +66,27 @@ Thư viện này được thiết kế để làm việc với các rules và sk
 - **133 files rules** bao gồm các patterns kiến trúc enterprise
 - **Skills** cho frontend, security, testing, và nhiều hơn nữa
 - **Pre-review và post-review gates** để đảm bảo chất lượng
+
+## Tương thích đa vibe tools
+
+Dùng lệnh `vibe` cho các runtime nằm trong `VibeTool`:
+
+```bash
+# Xem trước trước khi ghi file
+python -m vibe_framework vibe sync --tool cursor --dry-run
+
+# Đồng bộ instructions và cài plugin cho tool tương ứng
+python -m vibe_framework vibe sync --tool claude-code
+python -m vibe_framework vibe install-plugins --tool cursor
+```
+
+Lệnh `vibe sync` cũng hỗ trợ Windsurf, Antigravity, Cline, Roo Code, Copilot
+và Aider. Chạy `python -m vibe_framework vibe --help` để xem danh sách mới nhất.
+Grok được xử lý qua cross-agent skill registry:
+
+```bash
+python -m vibe_framework.cross_agent --agent grok --skills
+```
 
 ## License
 

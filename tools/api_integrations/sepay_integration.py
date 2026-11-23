@@ -27,8 +27,7 @@ from urllib.parse import urlencode
 try:
     import requests
 except ImportError:
-    print("ERROR: requests library required. Install with: pip install requests")
-    sys.exit(1)
+    requests = None
 
 
 @dataclass
@@ -49,6 +48,8 @@ class SePayClient:
 
     def __init__(self, api_key: str, sandbox: bool = False):
         self.config = SePayConfig(api_key=api_key, sandbox=sandbox)
+        if requests is None:
+            raise RuntimeError("requests library required. Install with: pip install requests")
         self.session = requests.Session()
         self.session.headers.update({
             "Authorization": f"Bearer {api_key}",

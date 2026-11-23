@@ -3,6 +3,7 @@ import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { useTheme, type ThemeName } from '../composables/useTheme'
+import { copyText } from '../composables/useClipboard'
 import { templates } from '../data/templates'
 
 const route = useRoute()
@@ -46,8 +47,8 @@ const quickCommands = [
 
 const copiedCommand = ref<string | null>(null)
 
-function copyCommand(cmd: string) {
-  navigator.clipboard.writeText(cmd)
+async function copyCommand(cmd: string) {
+  if (!(await copyText(cmd))) return
   copiedCommand.value = cmd
   setTimeout(() => {
     copiedCommand.value = null

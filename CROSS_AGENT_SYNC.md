@@ -197,23 +197,28 @@ registry.export_manifest(manifest, format="json", output_path="manifest.json")
 ### Single Agent
 
 ```bash
-# Cursor IDE (default)
-python -m vibe_framework install --agent cursor
-
-# Codex
-python -m vibe_framework install --agent codex
+# Cursor IDE
+python -m vibe_framework vibe sync --tool cursor
+python -m vibe_framework vibe install-plugins --tool cursor
 
 # Claude Code
-python -m vibe_framework install --agent claude-code
+python -m vibe_framework vibe sync --tool claude-code
 
-# Grok
-python -m vibe_framework install --agent grok
+# Also supported: windsurf, antigravity, cline, roo, copilot, aider, codex
+```
+
+### Grok
+
+Grok is handled by the cross-agent skill registry, not by `vibe sync`:
+
+```bash
+python -m vibe_framework.cross_agent --agent grok --skills
 ```
 
 ### All Agents
 
 ```bash
-python -m vibe_framework install --all-agents
+python -m vibe_framework vibe sync --tool all
 ```
 
 ### Python API

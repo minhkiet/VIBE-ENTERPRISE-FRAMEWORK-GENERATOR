@@ -61,6 +61,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import asdict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -213,13 +214,19 @@ def _build_parser() -> argparse.ArgumentParser:
     serve_api.add_argument("--port", type=int, default=8767, help="Bind port (default: 8767)")
 
     # vibe: Multi-tool vibe coding sync and inspection
+    from .vibe_sync import VibeTool
+
     vibe = sub.add_parser(
         "vibe",
         help="Multi-tool vibe coding engine (detect, sync, status for Cursor, Windsurf, Claude Code, Antigravity, etc.)",
         parents=[_common_flags()],
     )
     vibe.add_argument("action", nargs="?", default="status", choices=["detect", "sync", "status", "install-plugins", "plugins"], help="Action to execute")
-    vibe.add_argument("--tool", default="all", help="Target tool (cursor, windsurf, claude-code, antigravity, cline, roo, copilot, aider, codex, or all)")
+    vibe.add_argument(
+        "--tool",
+        default=None,
+        help=f"Target tool ({', '.join(tool.value for tool in VibeTool)}, or all)",
+    )
     vibe.add_argument("--dry-run", action="store_true", help="Simulate sync without writing files")
     vibe.add_argument("--force", action="store_true", help="Overwrite existing configuration files")
     vibe.add_argument("--global", action="store_true", dest="global_install", help="Install plugins globally to user home instead of workspace")
@@ -727,9 +734,13 @@ def _vibe(args: argparse.Namespace) -> int:
 
     action = getattr(args, "action", "status")
     workspace = getattr(args, "workspace", None)
+    as_json = getattr(args, "as_json", False)
 
     if action in ("status", "detect"):
         summary = get_vibe_summary(workspace)
+        if as_json:
+            print(json.dumps(summary, indent=2, ensure_ascii=False, default=str))
+            return 0
         print("Vibe Coding Environment Summary:")
         print(f"Workspace: {summary['workspace_root']}")
         print(f"Active Tools Detected ({summary['active_count']}):")
@@ -743,9 +754,11 @@ def _vibe(args: argparse.Namespace) -> int:
 
     if action == "sync":
         engine = VibeSyncEngine(workspace)
-        tool_arg = getattr(args, "tool", "all")
-        if tool_arg == "all":
+        tool_arg = getattr(args, "tool", None)
+        if tool_arg is None:
             target_tools = None
+        elif tool_arg == "all":
+            target_tools = list(VibeTool)
         else:
             try:
                 target_tools = [VibeTool(tool_arg)]
@@ -757,23 +770,29 @@ def _vibe(args: argparse.Namespace) -> int:
         force = getattr(args, "force", False)
 
         report = engine.sync(tools=target_tools, dry_run=dry_run, force=force)
-        print(f"Vibe Sync Report ({'DRY RUN' if dry_run else 'EXECUTED'}):")
-        print(f"Workspace: {report.workspace_root}")
-        print(f"Synced tools: {[t.value for t in report.synced_tools]}")
-        for mod in report.files_modified:
-            print(f"  [{mod.action.upper()}] {mod.tool.value}: {mod.file_path.name} ({mod.description})")
+        if as_json:
+            print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False, default=str))
+        else:
+            print(f"Vibe Sync Report ({'DRY RUN' if dry_run else 'EXECUTED'}):")
+            print(f"Workspace: {report.workspace_root}")
+            print(f"Synced tools: {[t.value for t in report.synced_tools]}")
+            for mod in report.files_modified:
+                print(f"  [{mod.action.upper()}] {mod.tool.value}: {mod.file_path.name} ({mod.description})")
         if report.errors:
-            print("Errors encountered:", file=sys.stderr)
-            for err in report.errors:
-                print(f"  ! {err}", file=sys.stderr)
+            if not as_json:
+                print("Errors encountered:", file=sys.stderr)
+                for err in report.errors:
+                    print(f"  ! {err}", file=sys.stderr)
             return 1
         return 0
 
     if action in ("install-plugins", "plugins"):
         engine = VibeSyncEngine(workspace)
-        tool_arg = getattr(args, "tool", "all")
-        if tool_arg == "all":
+        tool_arg = getattr(args, "tool", None)
+        if tool_arg is None:
             target_tools = None
+        elif tool_arg == "all":
+            target_tools = list(VibeTool)
         else:
             try:
                 target_tools = [VibeTool(tool_arg)]
@@ -793,7 +812,6 @@ def _vibe(args: argparse.Namespace) -> int:
             force=force,
             dry_run=dry_run,
         )
-        as_json = getattr(args, "as_json", False)
         if not res.get("success"):
             if as_json:
                 print(json.dumps(res, indent=2, default=str))
@@ -827,20 +845,31 @@ def _redis(args: argparse.Namespace) -> int:
 
     obs = RedisObservability(redis_url=args.url)
     action = getattr(args, "action", "status")
+    as_json = getattr(args, "as_json", False)
 
     if action == "status":
         connected = obs.ping()
-        print("Redis Observability Status:")
-        print(f"  URL: {obs.redis_url}")
-        print(f"  Library Installed: {obs.is_library_available}")
-        print(f"  Server Reachable: {connected}")
+        payload: dict[str, Any] = {
+            "url": obs.redis_url,
+            "library_installed": obs.is_library_available,
+            "server_reachable": connected,
+        }
         if not obs.is_library_available:
-            print("  Note: Run 'uv pip install redis' to enable Redis caching & observability.")
+            payload["note"] = "Run 'uv pip install redis' to enable Redis caching & observability."
+        if as_json:
+            print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+        else:
+            print("Redis Observability Status:")
+            print(f"  URL: {payload['url']}")
+            print(f"  Library Installed: {payload['library_installed']}")
+            print(f"  Server Reachable: {connected}")
+            if "note" in payload:
+                print(f"  Note: {payload['note']}")
         return 0 if connected else (0 if not obs.is_library_available else 1)
 
     if action == "metrics":
         metrics = obs.collect_metrics()
-        if getattr(args, "as_json", False):
+        if as_json:
             print(json.dumps(metrics.to_dict(), indent=2))
         else:
             print("Redis Observability Metrics:")
@@ -860,17 +889,23 @@ def _redis(args: argparse.Namespace) -> int:
 
     if action == "slowlog":
         entries = obs.slowlog_get(limit=getattr(args, "limit", 10))
-        print(f"Redis SLOWLOG (Top {len(entries)}):")
-        if not entries:
-            print("  (No slow commands recorded or Redis offline)")
-        for entry in entries:
-            print(f"  [{entry.duration_micros}μs] #{entry.entry_id}: {entry.command}")
+        if as_json:
+            print(json.dumps([asdict(e) for e in entries], indent=2, ensure_ascii=False, default=str))
+        else:
+            print(f"Redis SLOWLOG (Top {len(entries)}):")
+            if not entries:
+                print("  (No slow commands recorded or Redis offline)")
+            for entry in entries:
+                print(f"  [{entry.duration_micros}μs] #{entry.entry_id}: {entry.command}")
         return 0
 
     if action == "doctor":
         report = obs.memory_doctor()
-        print("Redis MEMORY DOCTOR Summary:")
-        print(f"  {report}")
+        if as_json:
+            print(json.dumps({"report": report}, indent=2, ensure_ascii=False, default=str))
+        else:
+            print("Redis MEMORY DOCTOR Summary:")
+            print(f"  {report}")
         return 0
 
     return 0
@@ -976,7 +1011,8 @@ def _ecc(args: argparse.Namespace) -> int:
 def _spec(args: argparse.Namespace) -> int:
     from .spec_kit import SpecKitManager
 
-    mgr = SpecKitManager(args.root.replace(".cursor", "") if args.root != ".cursor" else None)
+    root = Path(args.root)
+    mgr = SpecKitManager(root.parent if root.name == ".cursor" else root)
     action = args.action
 
     if action == "constitution":

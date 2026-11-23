@@ -23,8 +23,7 @@ from typing import Optional, List
 try:
     import requests
 except ImportError:
-    print("ERROR: requests library required. Install with: pip install requests")
-    sys.exit(1)
+    requests = None
 
 
 @dataclass
@@ -42,6 +41,8 @@ class FacebookClient:
         self.access_token = access_token
         self.config = config or FacebookConfig()
         self.base_url = self.config.graph_url
+        if requests is None:
+            raise RuntimeError("requests library required. Install with: pip install requests")
         self.session = requests.Session()
         self.session.params = {"access_token": access_token}
     

@@ -27,8 +27,7 @@ from urllib.parse import urlencode
 try:
     import requests
 except ImportError:
-    print("ERROR: requests library required. Install with: pip install requests")
-    sys.exit(1)
+    requests = None
 
 
 @dataclass
@@ -47,6 +46,8 @@ class ShopeeClient:
         self.partner_key = partner_key.encode()
         self.shop_id = shop_id
         self.config = config or ShopeeConfig()
+        if requests is None:
+            raise RuntimeError("requests library required. Install with: pip install requests")
         self.session = requests.Session()
     
     def _generate_signature(self, path: str, post_data: str) -> str:

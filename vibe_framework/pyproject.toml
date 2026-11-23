@@ -83,11 +83,17 @@ vibe-warm = "vibe_framework.__main__:warm"
 vibe-dashboard = "vibe_framework.__main__:serve"
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = [".."]
 include = ["vibe_framework*"]
 
 [tool.setuptools.package-data]
-vibe_framework = ["*.md", "py.typed"]
+vibe_framework = [
+    "*.md",
+    "py.typed",
+    "plugins/*",
+    "plugins/*/*",
+    "plugins/*/*/*",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

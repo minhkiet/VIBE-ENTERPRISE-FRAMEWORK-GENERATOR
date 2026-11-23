@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../vibe-setup-gui-wpf/Services/AutomationArgs.cs" Link="AutomationArgs.cs" />
+    <Compile Include="../vibe-setup-gui-wpf/Services/VibeCli.cs" Link="VibeCli.cs" />
+    <Compile Include="../vibe-setup-gui-wpf/Services/FrameworkRunner.cs" Link="FrameworkRunner.cs" />
+    <Compile Include="../vibe-setup-gui-wpf/Services/GitHubSkillService.cs" Link="GitHubSkillService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.2.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
+  </ItemGroup>
+</Project>

@@ -11,7 +11,7 @@
 # ============================================================
 
 param(
-    [string]$RepoUrl = "https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR",
+    [string]$RepoUrl = "https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR",
     [string]$Branch = "main",
     [switch]$Force,
     [switch]$CheckUpdate

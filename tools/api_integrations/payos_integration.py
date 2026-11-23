@@ -28,8 +28,7 @@ from typing import Any, Dict, List, Optional
 try:
     import requests
 except ImportError:
-    print("ERROR: requests library required. Install with: pip install requests")
-    sys.exit(1)
+    requests = None
 
 
 @dataclass
@@ -55,6 +54,8 @@ class PayOSClient:
         ck = checksum_key or os.environ.get("PAYOS_CHECKSUM_KEY", "")
 
         self.config = PayOSConfig(client_id=cid, api_key=ak, checksum_key=ck)
+        if requests is None:
+            raise RuntimeError("requests library required. Install with: pip install requests")
         self.session = requests.Session()
         self.session.headers.update({
             "x-client-id": self.config.client_id,

@@ -25,8 +25,7 @@ from typing import Any, Dict, List, Optional, Union
 try:
     import requests
 except ImportError:
-    print("ERROR: requests library required. Install with: pip install requests")
-    sys.exit(1)
+    requests = None
 
 
 @dataclass
@@ -44,6 +43,8 @@ class Pay2SClient:
         sk = secret_key or os.environ.get("PAY2S_SECRET_KEY")
         wt = webhook_token or os.environ.get("PAY2S_WEBHOOK_TOKEN")
         self.config = Pay2SConfig(secret_key=sk, webhook_token=wt)
+        if requests is None:
+            raise RuntimeError("requests library required. Install with: pip install requests")
         self.session = requests.Session()
 
     @staticmethod

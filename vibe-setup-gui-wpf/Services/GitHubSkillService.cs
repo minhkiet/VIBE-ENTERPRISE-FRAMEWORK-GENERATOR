@@ -62,7 +62,8 @@ public sealed class GitHubSkillService
     {
         foreach (var candidate in GetPythonCandidates(workspaceRoot))
         {
-            var result = await RunProcessAsync(candidate.FileName, candidate.Arguments,
+            var probeArguments = candidate.Arguments.Concat(new[] { "--version" }).ToList();
+            var result = await RunProcessAsync(candidate.FileName, probeArguments,
                 workspaceRoot, timeoutMs: 12000);
             if (result.ExitCode == 0 && !string.IsNullOrWhiteSpace(result.Combined))
             {
@@ -168,6 +169,16 @@ public sealed class GitHubSkillService
 
         candidates.Add(new("py", new[] { "-3" }, "py"));
         candidates.Add(new("python", Array.Empty<string>(), "python"));
+
+        var localPrograms = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Programs", "Python");
+        foreach (var folder in new[] { "Python313", "Python312", "Python311", "Python310", "Python39" })
+        {
+            var path = Path.Combine(localPrograms, folder, "python.exe");
+            if (File.Exists(path)) candidates.Add(new(path, Array.Empty<string>(), path));
+        }
+
         return candidates.Where(c => seen.Add(c.DisplayName));
     }
 

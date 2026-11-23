@@ -34,7 +34,12 @@ zip-safe = true
 include = ["vibe_framework*"]
 
 [tool.setuptools.package-data]
-vibe_framework = ["*.md"]
+vibe_framework = [
+    "*.md",
+    "plugins/*",
+    "plugins/*/*",
+    "plugins/*/*/*",
+]
 
 [tool.pytest.ini_options]
 # Restrict collection to the directories this project owns; third-party

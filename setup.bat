@@ -12,7 +12,7 @@ setlocal enabledelayedexpansion
 :: ============================================================
 
 set "SOURCE_DIR=%~dp0"
-set "GITHUB_REPO=https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR"
+set "GITHUB_REPO=https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR"
 set "GITHUB_BRANCH=main"
 set "USER_CURSOR_HOME=%USERPROFILE%\.cursor"
 set "USER_SKILLS=%USERPROFILE%\.cursor\skills"
@@ -25,7 +25,7 @@ set "USER_TEMPLATES=%USERPROFILE%\.cursor\templates"
 
 :: GitHub installation settings
 set "GITHUB_INSTALL_DIR=%TEMP%\vibe-framework-github"
-set "GITHUB_REPO=https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR"
+set "GITHUB_REPO=https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR"
 set "GITHUB_BRANCH=main"
 
 :: Default mode is skip-if-exists; pass --force to overwrite.

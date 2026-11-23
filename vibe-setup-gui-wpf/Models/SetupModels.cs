@@ -85,7 +85,7 @@ namespace CursorSetupWpf.Models
         public bool PackageFramework { get; set; }
         public bool EnablePreScanHook { get; set; } = true;
         public bool EnablePostInstallHook { get; set; } = true;
-        public string PreScanScript { get; set; } = "-m vibe_framework.indexer --validate";
+        public string PreScanScript { get; set; } = "-m vibe_framework scan";
         public string PostInstallScript { get; set; } = "-m vibe_framework.indexer";
     }
 

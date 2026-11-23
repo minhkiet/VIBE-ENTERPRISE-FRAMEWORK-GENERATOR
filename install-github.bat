@@ -10,7 +10,7 @@ setlocal enabledelayedexpansion
 ::   install-github.bat [repo-url] [branch]   - Custom repo + branch
 :: ============================================================
 
-set "DEFAULT_REPO=https://github.com/minhkiet/CURSOR-ENTERPRISE-FRAMEWORK-GENERATOR"
+set "DEFAULT_REPO=https://github.com/minhkiet/VIBE-ENTERPRISE-FRAMEWORK-GENERATOR"
 set "DEFAULT_BRANCH=main"
 set "INSTALL_DIR=%TEMP%\cef-install"
 

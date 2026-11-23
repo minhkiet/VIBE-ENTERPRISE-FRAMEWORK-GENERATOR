@@ -39,7 +39,6 @@ namespace CursorSetupWpf.ViewModels
         string _installPath = "";
         bool _isInstalled;
         bool _supportsHooks;
-        bool _hasNativePlugin;
 
         public string Name { get => _name; set => Set(ref _name, value); }
         public string Type { get => _type; set => Set(ref _type, value); }
@@ -57,7 +56,6 @@ namespace CursorSetupWpf.ViewModels
             } 
         }
         public bool SupportsHooks { get => _supportsHooks; set => Set(ref _supportsHooks, value); }
-        public bool HasNativePlugin { get => _hasNativePlugin; set => Set(ref _hasNativePlugin, value); }
         
         // Localized status text
         public string InstalledText => LocalizationService.T("ecc.installed");
@@ -73,19 +71,11 @@ namespace CursorSetupWpf.ViewModels
         }
     }
 
-    public class InstallProfileItem : ViewModelBase
-    {
-        string _name = "";
-        string _value = "";
-        string _description = "";
-
-        public string Name { get => _name; set => Set(ref _name, value); }
-        public string Value { get => _value; set => Set(ref _value, value); }
-        public string Description { get => _description; set => Set(ref _description, value); }
-    }
-
     public class ECCViewModel : ViewModelBase
     {
+        readonly Func<string> _workspaceRoot;
+        readonly FrameworkRunner _vibeRunner = new();
+
         // Labels (using methods that call LocalizationService.T)
         public string ECCTitle => LocalizationService.T("ecc.title");
         public string ECCSubtitle => LocalizationService.T("ecc.subtitle");
@@ -166,23 +156,6 @@ namespace CursorSetupWpf.ViewModels
             ? LocalizationService.T("ecc.installed")
             : LocalizationService.T("ecc.not_installed");
 
-        bool _enableHooks;
-        public bool EnableHooks { get => _enableHooks; set => Set(ref _enableHooks, value); }
-
-        // Profile selection
-        public ObservableCollection<InstallProfileItem> Profiles { get; } = new();
-        InstallProfileItem? _selectedProfile;
-        public InstallProfileItem? SelectedProfile
-        {
-            get => _selectedProfile;
-            set
-            {
-                if (Set(ref _selectedProfile, value))
-                    OnPropertyChanged(nameof(SelectedProfileValue));
-            }
-        }
-        public string SelectedProfileValue => SelectedProfile?.Value ?? "core";
-
         // Harness items
         public ObservableCollection<HarnessItem> HarnessItems { get; } = new();
 
@@ -194,20 +167,17 @@ namespace CursorSetupWpf.ViewModels
         // Logging
         public ObservableCollection<string> LogLines { get; } = new();
 
-        public ECCViewModel()
+        public ECCViewModel(Func<string>? workspaceRoot = null)
         {
+            _workspaceRoot = workspaceRoot ?? (() => Environment.CurrentDirectory);
+            _vibeRunner.OutputReceived += line => AppendLog($"[VIBE] {line}");
+
             // Subscribe to culture changes for language refresh
             LocalizationService.CultureChanged += OnCultureChanged;
             
             // Initialize vibe coding tools
             InitializeVibeTools();
             
-            // Initialize profiles
-            Profiles.Add(new InstallProfileItem { Name = "Minimal", Value = "minimal", Description = "Rules + Agents" });
-            Profiles.Add(new InstallProfileItem { Name = "Core", Value = "core", Description = "Full skills + commands" });
-            Profiles.Add(new InstallProfileItem { Name = "Full", Value = "full", Description = "Everything + hooks" });
-            _selectedProfile = Profiles.FirstOrDefault(p => p.Value == "core") ?? Profiles.FirstOrDefault();
-
             // Initialize harnesses
             InitializeHarnesses();
 
@@ -234,7 +204,6 @@ namespace CursorSetupWpf.ViewModels
             OnPropertyChanged(nameof(StatusLabel));
             OnPropertyChanged(nameof(CloneRepoLabel));
             OnPropertyChanged(nameof(RefreshStatusLabel));
-            OnPropertyChanged(nameof(EnableHooksLabel));
             OnPropertyChanged(nameof(HarnessesTitle));
             OnPropertyChanged(nameof(FeaturesTitle));
             OnPropertyChanged(nameof(AgentsLabel));
@@ -281,15 +250,25 @@ namespace CursorSetupWpf.ViewModels
         void InitializeVibeTools()
         {
             AvailableVibeTools.Clear();
-            AvailableVibeTools.Add(new VibeToolItem { Id = "cursor", GatePrefix = "K", Description = "Cursor IDE with AI-powered coding" });
-            AvailableVibeTools.Add(new VibeToolItem { Id = "antigravity", GatePrefix = "A", Description = "Antigravity - Next-gen vibe coding" });
-            AvailableVibeTools.Add(new VibeToolItem { Id = "codex", GatePrefix = "X", Description = "OpenAI Codex CLI" });
-            AvailableVibeTools.Add(new VibeToolItem { Id = "claude_code", GatePrefix = "C", Description = "Anthropic Claude Code" });
-            AvailableVibeTools.Add(new VibeToolItem { Id = "grok", GatePrefix = "G", Description = "xAI Grok CLI" });
-            AvailableVibeTools.Add(new VibeToolItem { Id = "gemini", GatePrefix = "M", Description = "Google Gemini CLI" });
-            AvailableVibeTools.Add(new VibeToolItem { Id = "zed", GatePrefix = "Z", Description = "Zed AI Editor" });
-            AvailableVibeTools.Add(new VibeToolItem { Id = "kimi", GatePrefix = "K", Description = "Kimi Code AI" });
-            AvailableVibeTools.Add(new VibeToolItem { Id = "copilot", GatePrefix = "H", Description = "GitHub Copilot CLI" });
+            foreach (var tool in VibeCli.SupportedTools)
+            {
+                AvailableVibeTools.Add(new VibeToolItem
+                {
+                    Id = tool.Replace('-', '_'),
+                    GatePrefix = tool switch
+                    {
+                        "cursor" => "K",
+                        "windsurf" => "W",
+                        "claude-code" => "C",
+                        "antigravity" => "AG",
+                        "cline" => "CL",
+                        "roo" => "R",
+                        "copilot" => "CP",
+                        "aider" => "AI",
+                        _ => "CX",
+                    },
+                });
+            }
             
             // Set default selection
             _selectedVibeTool = AvailableVibeTools.FirstOrDefault(t => t.Id == "cursor") 
@@ -304,77 +283,26 @@ namespace CursorSetupWpf.ViewModels
         void InitializeHarnesses()
         {
             HarnessItems.Clear();
+            AddHarness("cursor", ".cursor", "ecc.harness_cursor_desc");
+            AddHarness("windsurf", ".windsurf", "vibe_tool.windsurf_desc");
+            AddHarness("claude-code", ".claude", "ecc.harness_claude_desc");
+            AddHarness("antigravity", ".gemini", "ecc.harness_antigravity_desc");
+            AddHarness("cline", ".cline", "vibe_tool.cline_desc");
+            AddHarness("roo", ".roo", "vibe_tool.roo_desc");
+            AddHarness("copilot", ".github", "ecc.harness_copilot_desc");
+            AddHarness("aider", ".aider.conf.yml", "vibe_tool.aider_desc");
+            AddHarness("codex", ".codex", "ecc.harness_codex_desc");
+        }
+
+        void AddHarness(string toolId, string installPath, string descriptionKey)
+        {
             HarnessItems.Add(new HarnessItem
             {
-                Name = "Claude Code",
-                Type = "claude",
-                Description = LocalizationService.T("ecc.harness_claude_desc"),
-                InstallPath = "~/.claude",
-                SupportsHooks = true,
-                HasNativePlugin = true,
-            });
-            HarnessItems.Add(new HarnessItem
-            {
-                Name = "Codex",
-                Type = "codex",
-                Description = LocalizationService.T("ecc.harness_codex_desc"),
-                InstallPath = "~/.codex",
-                SupportsHooks = true,
-                HasNativePlugin = true,
-            });
-            HarnessItems.Add(new HarnessItem
-            {
-                Name = "Cursor",
-                Type = "cursor",
-                Description = LocalizationService.T("ecc.harness_cursor_desc"),
-                InstallPath = ".cursor",
+                Name = LocalizationService.T($"vibe_tool.{toolId.Replace('-', '_')}"),
+                Type = toolId,
+                Description = LocalizationService.T(descriptionKey),
+                InstallPath = installPath,
                 SupportsHooks = false,
-                HasNativePlugin = false,
-            });
-            HarnessItems.Add(new HarnessItem
-            {
-                Name = "Gemini CLI",
-                Type = "gemini",
-                Description = LocalizationService.T("ecc.harness_gemini_desc"),
-                InstallPath = ".gemini",
-                SupportsHooks = false,
-                HasNativePlugin = false,
-            });
-            HarnessItems.Add(new HarnessItem
-            {
-                Name = "Zed",
-                Type = "zed",
-                Description = LocalizationService.T("ecc.harness_zed_desc"),
-                InstallPath = ".zed",
-                SupportsHooks = false,
-                HasNativePlugin = false,
-            });
-            HarnessItems.Add(new HarnessItem
-            {
-                Name = "Kimi Code",
-                Type = "kimi",
-                Description = LocalizationService.T("ecc.harness_kimi_desc"),
-                InstallPath = ".kimi-code",
-                SupportsHooks = false,
-                HasNativePlugin = false,
-            });
-            HarnessItems.Add(new HarnessItem
-            {
-                Name = "GitHub Copilot",
-                Type = "copilot",
-                Description = LocalizationService.T("ecc.harness_copilot_desc"),
-                InstallPath = ".github",
-                SupportsHooks = false,
-                HasNativePlugin = false,
-            });
-            HarnessItems.Add(new HarnessItem
-            {
-                Name = "Antigravity",
-                Type = "antigravity",
-                Description = LocalizationService.T("ecc.harness_antigravity_desc"),
-                InstallPath = ".antigravity",
-                SupportsHooks = false,
-                HasNativePlugin = false,
             });
         }
 
@@ -433,7 +361,6 @@ namespace CursorSetupWpf.ViewModels
 
         void RefreshStatus()
         {
-            // Check if ECC is installed in common locations
             var possiblePaths = new[]
             {
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cache", "cursor-ecc", "ecc"),
@@ -443,17 +370,43 @@ namespace CursorSetupWpf.ViewModels
 
             IsECCInstalled = possiblePaths.Any(Directory.Exists);
 
-            // Check harness installations
+            var workspace = _workspaceRoot();
             foreach (var item in HarnessItems)
             {
-                var path = item.InstallPath;
-                if (path.StartsWith("~"))
-                    path = Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                        path.Substring(2));
-
-                item.IsInstalled = Directory.Exists(path) && File.Exists(Path.Combine(path, ".ecc-installed"));
+                item.IsInstalled = ResolveHarnessPath(workspace, item.InstallPath) is string path &&
+                    (Directory.Exists(path) || File.Exists(path));
             }
+        }
+
+        static string? ResolveHarnessPath(string workspace, string relativePath)
+        {
+            if (string.IsNullOrWhiteSpace(relativePath)) return null;
+            if (relativePath.StartsWith("~"))
+            {
+                var suffix = relativePath.Substring(1).TrimStart('/', '\\');
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), suffix);
+            }
+
+            return Path.IsPathRooted(relativePath)
+                ? relativePath
+                : Path.Combine(workspace, relativePath);
+        }
+
+        void AppendLog(string line)
+        {
+            if (Application.Current?.Dispatcher.CheckAccess() == true)
+            {
+                LogLines.Add(line);
+                return;
+            }
+
+            if (Application.Current != null)
+            {
+                Application.Current.Dispatcher.Invoke(() => LogLines.Add(line));
+                return;
+            }
+
+            LogLines.Add(line);
         }
 
         async Task InstallHarnessAsync(object? parameter)
@@ -463,96 +416,49 @@ namespace CursorSetupWpf.ViewModels
 
             try
             {
-                LogLines.Add($"[ECC] {LocalizationService.T("ecc.installing")} {harness.Name}...");
-
-                // For Claude Code and Codex, use npm
-                if (harness.HasNativePlugin)
+                var tool = VibeCli.MapTool(harness.Type);
+                if (tool == null)
                 {
-                    var npmCmd = new Process
-                    {
-                        StartInfo = new ProcessStartInfo
-                        {
-                            FileName = "npx",
-                            Arguments = $"ecc-universal@2.2.2 install --profile {SelectedProfileValue} --target {harness.Type}",
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            CreateNoWindow = true,
-                        }
-                    };
-
-                    npmCmd.Start();
-                    await npmCmd.WaitForExitAsync();
-
-                    if (npmCmd.ExitCode == 0)
-                    {
-                        LogLines.Add($"[ECC] {harness.Name} {LocalizationService.T("ecc.install_success")}");
-                        harness.IsInstalled = true;
-                    }
-                    else
-                    {
-                        var error = await npmCmd.StandardError.ReadToEndAsync();
-                        LogLines.Add($"[ECC] {harness.Name} {LocalizationService.T("ecc.install_failed")}: {error}");
-                    }
+                    AppendLog($"[VIBE] Tool '{harness.Type}' is not supported by vibe sync.");
+                    return;
                 }
-                else
-                {
-                    // For other harnesses, use install.sh
-                    var cachePath = Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                        ".cache", "cursor-ecc", "ecc");
 
-                    if (!Directory.Exists(cachePath))
+                AppendLog($"[VIBE] {LocalizationService.T("ecc.installing")} {harness.Name}...");
+                var workspace = _workspaceRoot();
+                var commands = new[]
+                {
+                    $"vibe sync --tool {tool}",
+                    $"vibe install-plugins --tool {tool}",
+                };
+
+                foreach (var command in commands)
+                {
+                    int? exitCode = null;
+                    Action<int> onExit = code => exitCode = code;
+                    _vibeRunner.ProcessExited += onExit;
+                    AppendLog($"[VIBE] {command} --workspace \"{workspace}\"");
+                    try
                     {
-                        LogLines.Add($"[ECC] {LocalizationService.T("ecc.repo_not_found")}");
+                        await _vibeRunner.RunCommandAsync(command, workspace, 120);
+                    }
+                    finally
+                    {
+                        _vibeRunner.ProcessExited -= onExit;
+                    }
+
+                    if (exitCode != 0)
+                    {
+                        AppendLog($"[VIBE] {harness.Name} {LocalizationService.T("ecc.install_failed")} (exit {exitCode?.ToString() ?? "unknown"})");
                         return;
                     }
-
-                    var installScript = Path.Combine(cachePath,
-                        OperatingSystem.IsWindows() ? "install.ps1" : "install.sh");
-
-                    if (!File.Exists(installScript))
-                    {
-                        LogLines.Add($"[ECC] {LocalizationService.T("ecc.install_script_not_found")}");
-                        return;
-                    }
-
-                    var args = OperatingSystem.IsWindows()
-                        ? $"-File \"{installScript}\" --profile {SelectedProfileValue} --target {harness.Type}"
-                        : $"./install.sh --profile {SelectedProfileValue} --target {harness.Type}";
-
-                    var installProc = new Process
-                    {
-                        StartInfo = new ProcessStartInfo
-                        {
-                            FileName = OperatingSystem.IsWindows() ? "pwsh" : "bash",
-                            Arguments = args,
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            CreateNoWindow = true,
-                            WorkingDirectory = cachePath,
-                        }
-                    };
-
-                    installProc.Start();
-                    await installProc.WaitForExitAsync();
-
-                    if (installProc.ExitCode == 0)
-                    {
-                        LogLines.Add($"[ECC] {harness.Name} {LocalizationService.T("ecc.install_success")}");
-                        harness.IsInstalled = true;
-                    }
-                    else
-                    {
-                        var error = await installProc.StandardError.ReadToEndAsync();
-                        LogLines.Add($"[ECC] {harness.Name} {LocalizationService.T("ecc.install_failed")}: {error}");
-                    }
                 }
+
+                AppendLog($"[VIBE] {harness.Name} {LocalizationService.T("ecc.install_success")}");
+                harness.IsInstalled = true;
             }
             catch (Exception ex)
             {
-                LogLines.Add($"[ECC] {LocalizationService.T("ecc.error")}: {ex.Message}");
+                AppendLog($"[VIBE] {LocalizationService.T("ecc.error")}: {ex.Message}");
             }
         }
     }

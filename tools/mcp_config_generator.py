@@ -187,8 +187,8 @@ class McpConfigGenerator:
         """Add Browser MCP server."""
         self.config.mcpServers["browser"] = {
             "command": "npx",
-            "args": ["-y", "@modelcontextprotocol/server-browser"],
-            "description": "Browser MCP - Web automation and scraping"
+            "args": ["-y", "@playwright/mcp@0.0.86"],
+            "description": "Playwright MCP - Browser automation and scraping"
         }
     
     def add_zalo(self):

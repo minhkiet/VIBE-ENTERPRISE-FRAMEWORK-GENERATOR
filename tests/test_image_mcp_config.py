@@ -7,6 +7,17 @@ from tools.mcp_config_generator import McpConfigGenerator
 
 
 class TestImageMcpConfig(unittest.TestCase):
+    def test_generator_browser_server_uses_supported_pinned_package(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        generator = McpConfigGenerator(str(repo_root), target="cursor")
+
+        generator.add_browser()
+
+        server = generator.config.to_dict()["mcpServers"]["browser"]
+        self.assertEqual(server["command"], "npx")
+        self.assertIn("@playwright/mcp@0.0.86", server["args"])
+        self.assertNotIn("@modelcontextprotocol/server-browser", server["args"])
+
     def test_generator_adds_pinterest_server(self):
         repo_root = Path(__file__).resolve().parent.parent
         generator = McpConfigGenerator(str(repo_root), target="cursor")

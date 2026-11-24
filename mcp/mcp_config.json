@@ -36,7 +36,8 @@
       "env": {
         "CLAUDE_MEM_DB_PATH": "${env:USERPROFILE}/.claude-mem/claude-mem.db"
       },
-      "description": "claude-mem persistent memory MCP server - SQLite + FTS5 search & decisions retrieval"
+      "description": "claude-mem persistent memory MCP server - SQLite + FTS5 search & decisions retrieval",
+      "disabled": true
     },
     "pinterest": {
       "command": "python",

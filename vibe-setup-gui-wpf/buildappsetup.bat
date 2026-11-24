@@ -38,10 +38,11 @@ REM ----- Configuration -----
 set "SCRIPT_DIR=%~dp0"
 if "%SCRIPT_DIR:~-1%"=="\" set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
 set "PROJECT_DIR=%SCRIPT_DIR%"
+for %%I in ("%PROJECT_DIR%") do set "PROJECT_DIR=%%~fI"
+for %%I in ("%PROJECT_DIR%\..") do set "REPO_ROOT=%%~fI"
 set "BUILD_CONFIG=Release"
 set "BUILD_RID=win-x64"
 set "TFM=net8.0-windows"
-set "REPO_ROOT=%PROJECT_DIR%\.."
 set "TOOLS_DIR=%REPO_ROOT%\tools"
 set "OUTPUT_DIR=%PROJECT_DIR%\bin\%BUILD_CONFIG%\%TFM%\%BUILD_RID%\publish"
 set "ZIP_SCRIPT=%PROJECT_DIR%\build-zip.ps1"
@@ -294,5 +295,5 @@ echo   buildappsetup.bat Release     Build Release (self-contained)
 echo   buildappsetup.bat /clean      Clean before build
 echo   buildappsetup.bat /help       Show this help
 echo.
-echo Outputs go to: bin\^\<Config^\>\net8.0-windows\win-x64\publish\
+echo Outputs go to: bin\^<Config^>\net8.0-windows\win-x64\publish\
 exit /b 0

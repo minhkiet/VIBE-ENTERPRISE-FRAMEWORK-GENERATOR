@@ -41,7 +41,7 @@ Instead of starting every coding session from zero and falling into generic "AI 
 | **VBS Security Scanner** | 21 cross-language vulnerability rules + SCA | `.cursor/skills/sec_reverse-engineer-anything/` |
 | **Python Library** | 14 modules + 6 utility suites | `vibe_framework/` |
 | **Web Dashboard & CMS** | Vue 3 + Vite 6 + TypeScript + CMS Auth Gate | `vibe_framework_web/` |
-| **Windows GUI Installer** | `VibeCodeEnterpriseFramework.exe` (~162 MB), `vibe-setup.zip` (~32 MB) | generated in `dist/` by `dotnet publish` |
+| **Windows GUI Installer** | `VibeCodeEnterpriseFramework.exe` (~162 MB), `vibe-setup.zip` (~32 MB) | generated in `vibe-setup-gui-wpf\bin\Release\net8.0-windows\win-x64\publish\` by `dotnet publish` |
 
 ---
 

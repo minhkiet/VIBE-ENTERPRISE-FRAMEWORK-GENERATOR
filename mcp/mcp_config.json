@@ -48,6 +48,18 @@
         "PYTHONPATH": "${workspaceFolder}"
       },
       "description": "Pinterest MCP Server - Search, browse, extract, and download high-resolution images from Pinterest"
+    },
+    "gflow-cli": {
+      "command": "gflow",
+      "args": [
+        "mcp",
+        "run"
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "WORKSPACE_ROOT": "${workspaceFolder}"
+      },
+      "description": "gflow-cli MCP - Google Flow image/video generation (Nano Banana 2.1, Imagen 4, Veo 3.1). Run 'gflow auth login --browser chrome' once."
     }
   }
 }

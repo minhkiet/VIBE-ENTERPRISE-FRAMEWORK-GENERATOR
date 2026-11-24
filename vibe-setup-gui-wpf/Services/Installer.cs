@@ -245,6 +245,33 @@ namespace CursorSetupWpf.Services
                     "search_memory", "recall_decisions", "save_decision"
                 }
             ),
+            // gflow-cli - Google Flow image/video MCP (installed via uv, not vendored)
+            (
+                "gflow-cli",
+                null,
+                null,
+                "gflow-cli",
+                "Google Flow image/video MCP — Nano Banana 2.1, Imagen 4, Veo 3.1.",
+                new[]
+                {
+                    "gflow_generate_image", "gflow_generate_video", "gflow_download_media",
+                    "gflow_list_models", "gflow_get_credits", "gflow_auth_status"
+                }
+            ),
+            // Pinterest - vendored image/video search MCP (standalone script in mcp/)
+            (
+                "pinterest",
+                null,
+                null,
+                "Pinterest MCP",
+                "Pinterest image/video search, extraction and safe download.",
+                new[]
+                {
+                    "search_pins", "search_videos", "get_board_pins", "get_user_pins",
+                    "get_pin_details", "extract_from_url", "download_images",
+                    "download_video", "get_pin_video"
+                }
+            ),
         };
 
         static readonly string[] LegacyMcpKeys = { "framework", "autopilot", "memory" };
@@ -985,6 +1012,37 @@ namespace CursorSetupWpf.Services
                             ["env"] = new Dictionary<string, string>
                             {
                                 ["CLAUDE_MEM_DB_PATH"] = dbPath
+                            },
+                            ["description"] = entry.Description,
+                        };
+                    }
+                    // Pinterest MCP - standalone vendored script, not a python -m package
+                    else if (entry.ServerKey == "pinterest")
+                    {
+                        string pinterestScript = Path.Combine(installPath, "mcp", "pinterest_server.py");
+                        servers[entry.ServerKey] = new Dictionary<string, object>
+                        {
+                            ["command"] = "python",
+                            ["args"] = new[] { pinterestScript },
+                            ["cwd"] = installPath,
+                            ["env"] = new Dictionary<string, string>
+                            {
+                                ["PYTHONPATH"] = installPath
+                            },
+                            ["description"] = entry.Description,
+                        };
+                    }
+                    // gflow-cli MCP - uv-installed CLI over stdio
+                    else if (entry.ServerKey == "gflow-cli")
+                    {
+                        servers[entry.ServerKey] = new Dictionary<string, object>
+                        {
+                            ["command"] = "gflow",
+                            ["args"] = new[] { "mcp", "run" },
+                            ["cwd"] = installPath,
+                            ["env"] = new Dictionary<string, string>
+                            {
+                                ["WORKSPACE_ROOT"] = installPath
                             },
                             ["description"] = entry.Description,
                         };

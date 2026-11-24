@@ -154,7 +154,7 @@ export const templates: Template[] = [
     category: 'AI Image & Asset Pipeline',
     tagline: 'Pipeline tạo ảnh AI chuẩn phong cách & bóc tách asset web',
     description:
-      'Workflow tự động hóa hình ảnh từ Screenshot/URL sang Asset thực tế. Kết hợp Web Cloner, Image Finder (Unsplash, Pexels) và Google Flow CLI: tự sinh prompt từ chủ đề, model mặc định Nano Banana 2.1, tự nhận tỉ lệ từ prompt, tạo project, tải ảnh về public/assets/generated/google-flow/ và ghi manifest.',
+      'Workflow tự động hóa hình ảnh từ Screenshot/URL sang Asset thực tế. Kết hợp Web Cloner, Image Finder (Unsplash, Pexels), Google Flow CLI và gflow-cli MCP: tự sinh prompt từ chủ đề, model mặc định Nano Banana 2.1, tự nhận tỉ lệ từ prompt, tạo project, tải ảnh về public/assets/generated/google-flow/ và ghi manifest.',
     industry: 'IMAGE WORKFLOW',
     accent: '#f43f5e',
     accentSecondary: '#fb7185',
@@ -163,7 +163,7 @@ export const templates: Template[] = [
     features: [
       'Phân tích asset từ Screenshot & URL (bóc tách kích thước, màu, style)',
       'Cây quyết định Asset: Giữ URL -> Tìm Stock -> Tạo ảnh AI Custom',
-      'Google Flow CLI: auto prompt, Nano Banana 2.1, tỉ lệ theo prompt, tải ảnh và ghi manifest',
+      'Google Flow CLI/MCP: auto prompt, Nano Banana 2.1, tỉ lệ theo prompt, 27 tools trong vibe tool hoặc 25 tools read-only, tải ảnh và ghi manifest',
       'Kho Prompt Blueprints chuẩn studio: Ánh sáng, bối cảnh, tỷ lệ',
       'Bộ lọc Negative Prompt chống dị tật AI, chữ méo, bố cục hỏng',
       'Asset Manifest Generator xuất file tải về cho dự án web'

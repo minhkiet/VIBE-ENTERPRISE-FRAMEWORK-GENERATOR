@@ -75,6 +75,29 @@
       ],
       "cwd": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR\\tools\\rea",
       "description": "REA - Reverse Engineer Anything: native binaries, Electron/JS, APK, WASM via MCP"
+    },
+    "gflow-cli": {
+      "command": "gflow",
+      "args": [
+        "mcp",
+        "run"
+      ],
+      "cwd": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR",
+      "env": {
+        "WORKSPACE_ROOT": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR"
+      },
+      "description": "gflow-cli MCP - Google Flow image/video generation (Nano Banana 2.1, Imagen 4, Veo 3.1)"
+    },
+    "pinterest": {
+      "command": "C:\\Python312\\python.exe",
+      "args": [
+        "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR\\mcp\\pinterest_server.py"
+      ],
+      "cwd": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR",
+      "env": {
+        "PYTHONPATH": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR"
+      },
+      "description": "Pinterest MCP - image/video search, extraction and safe download"
     }
   },
   "version": "1.0",

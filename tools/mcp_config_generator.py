@@ -10,6 +10,9 @@ Usage:
     python mcp_config_generator.py --workspace /path/to/project --output mcp.json
     python mcp_config_generator.py --add vercel --add browser --output mcp.json
     python mcp_config_generator.py --add pinterest --output mcp.json
+    python mcp_config_generator.py --add gflow --output mcp.json
+    python mcp_config_generator.py --add gflow-readonly --output mcp.json
+    python mcp_config_generator.py --target codex --add gflow
 """
 
 import argparse
@@ -71,6 +74,9 @@ class McpConfigGenerator:
         self.python_cmd = self._resolve_python_cmd(python_cmd, target)
         self.config = McpConfig()
         self._add_cursor_framework()
+        # Image search is a baseline capability across vibe tools; register the
+        # vendored Pinterest MCP unless explicitly removed by the caller.
+        self.add_pinterest()
 
     def _resolve_python_cmd(self, python_cmd: Optional[str], target: str) -> str:
         """Resolve python command, handling Windows execution alias avoidance for Cursor."""
@@ -265,6 +271,41 @@ class McpConfigGenerator:
             description="Pinterest MCP - search, browse and download high-resolution images and videos",
         ).to_dict()
 
+    def add_gflow(self, read_only: bool = False):
+        """Add gflow-cli MCP server for Google Flow image/video generation.
+
+        ``gflow`` must be installed and authenticated once by the user:
+            uv tool install gflow-cli
+            uv tool run --from gflow-cli playwright install chromium
+            gflow auth login --browser chrome
+
+        The read-only variant registers ``--no-spend`` so generate tools are
+        hidden while discovery tools (models, credits, auth status) remain.
+        """
+        key = "gflow-cli-readonly" if read_only else "gflow-cli"
+        args = ["mcp", "run"]
+        if read_only:
+            args.append("--no-spend")
+
+        workspace = self._to_target_path(self.workspace_root)
+        description = (
+            "gflow-cli MCP (read-only) - Google Flow discovery, credits and auth status; "
+            "generation tools disabled"
+            if read_only
+            else "gflow-cli MCP - Google Flow image/video generation via Nano Banana 2.1 / Imagen 4 / Veo 3.1"
+        )
+        self.config.mcpServers[key] = McpServer(
+            command="gflow",
+            args=args,
+            cwd=workspace,
+            env={"WORKSPACE_ROOT": workspace},
+            description=description,
+        ).to_dict()
+
+    def add_gflow_readonly(self):
+        """Add gflow-cli MCP server with generation tools disabled."""
+        self.add_gflow(read_only=True)
+
     def add_rea(self):
         """Add REA (Reverse Engineer Anything) MCP server."""
         rea_dir = self.workspace_root / "tools" / "rea"
@@ -293,11 +334,79 @@ class McpConfigGenerator:
         self.config.syncedAt = datetime.datetime.now().isoformat()
         return json.dumps(self.config.to_dict(), indent=2, ensure_ascii=False)
     
+    @staticmethod
+    def _toml_string(value: Any) -> str:
+        """Render a TOML basic string with JSON-compatible escaping."""
+        return json.dumps(str(value), ensure_ascii=False)
+
+    @classmethod
+    def _toml_array(cls, values: Any) -> str:
+        """Render a TOML array of strings."""
+        items = [cls._toml_string(v) for v in values] if isinstance(values, (list, tuple)) else [cls._toml_string(values)]
+        return "[" + ", ".join(items) + "]"
+
+    @classmethod
+    def _build_codex_toml(cls, servers: dict[str, Any]) -> str:
+        """Render MCP servers as Codex [mcp_servers.*] TOML tables."""
+        blocks = []
+        for name, server in servers.items():
+            lines = [f"[mcp_servers.{name}]"]
+            if server.get("command"):
+                lines.append(f"command = {cls._toml_string(server['command'])}")
+            if server.get("args"):
+                lines.append(f"args = {cls._toml_array(server['args'])}")
+            if server.get("cwd"):
+                lines.append(f"cwd = {cls._toml_string(server['cwd'])}")
+            if server.get("url"):
+                lines.append(f"url = {cls._toml_string(server['url'])}")
+            env = server.get("env") or {}
+            if env:
+                lines.append("")
+                lines.append(f"[mcp_servers.{name}.env]")
+                for key, value in env.items():
+                    lines.append(f"{key} = {cls._toml_string(value)}")
+            blocks.append("\n".join(lines))
+        return "\n\n".join(blocks) + "\n"
+
+    @classmethod
+    def _merge_codex_toml(cls, existing: str, servers: dict[str, Any]) -> str:
+        """Replace managed [mcp_servers.*] tables while preserving all other TOML."""
+        managed = {name.lower() for name in servers}
+        kept = []
+        skip_block = False
+        for line in existing.replace("\r\n", "\n").split("\n"):
+            trimmed = line.strip()
+            if trimmed.startswith("[") and trimmed.endswith("]"):
+                section = trimmed.strip("[]").strip().lower()
+                skip_block = False
+                for name in managed:
+                    base = f"mcp_servers.{name}"
+                    if section == base or section.startswith(base + "."):
+                        skip_block = True
+                        break
+            if not skip_block:
+                kept.append(line)
+        body = "\n".join(kept).rstrip("\n")
+        addition = cls._build_codex_toml(servers)
+        return addition if not body else body + "\n\n" + addition
+
     def save(self, path: str):
         """Save configuration to file."""
+        if self.target == "codex":
+            self.save_codex_toml(path)
+            return
         with open(path, "w", encoding="utf-8") as f:
             f.write(self.to_json())
         print(f"MCP configuration saved to: {path}")
+
+    def save_codex_toml(self, path: str):
+        """Save MCP servers into Codex config.toml without overwriting other settings."""
+        target = Path(path)
+        existing = target.read_text(encoding="utf-8") if target.exists() else ""
+        merged = self._merge_codex_toml(existing, self.config.mcpServers)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(merged, encoding="utf-8")
+        print(f"Codex MCP configuration saved to: {target}")
     
     def print_summary(self):
         """Print configuration summary."""
@@ -342,7 +451,10 @@ def main():
         "-a",
         action="append",
         dest="add_servers",
-        choices=["vercel", "browser", "zalo", "telegram", "facebook", "google", "shopee", "rea"],
+        choices=[
+            "vercel", "browser", "zalo", "telegram", "facebook", "google",
+            "shopee", "rea", "pinterest", "gflow", "gflow-readonly",
+        ],
         help="Add additional MCP servers"
     )
     parser.add_argument(
@@ -370,6 +482,8 @@ def main():
         print("  shopee   - Shopee Seller API")
         print("  rea      - REA Reverse Engineer Anything")
         print("  pinterest - Pinterest image/video search and download")
+        print("  gflow    - gflow-cli MCP for Google Flow image/video generation")
+        print("  gflow-readonly - gflow-cli MCP without spend/generate tools")
         return 0
     
     # Generate config
@@ -396,6 +510,10 @@ def main():
                 generator.add_rea()
             elif server == "pinterest":
                 generator.add_pinterest()
+            elif server == "gflow":
+                generator.add_gflow()
+            elif server == "gflow-readonly":
+                generator.add_gflow_readonly()
     
     # Print summary
     generator.print_summary()
@@ -408,7 +526,7 @@ def main():
         "cursor": ws / ".cursor" / "mcp.json" if (ws / ".cursor").is_dir() else ws / args.output,
         "antigravity": ws / ".gemini" / "antigravity" / "mcp.json" if (ws / ".gemini").is_dir() else ws / "mcp.json",
         "claude": ws / ".claude" / "mcp.json" if (ws / ".claude").is_dir() else ws / "claude_mcp.json",
-        "codex": ws / ".codex" / "mcp.json" if (ws / ".codex").is_dir() else ws / "codex_mcp.json",
+        "codex": ws / ".codex" / "config.toml" if (ws / ".codex").is_dir() else ws / "codex_config.toml",
         "windsurf": ws / ".windsurf" / "mcp_config.json" if (ws / ".windsurf").is_dir() else ws / "windsurf_mcp.json",
         "cline": ws / ".cline" / "cline_mcp_settings.json" if (ws / ".cline").is_dir() else ws / "cline_mcp_settings.json",
         "roo": ws / ".roo" / "cline_mcp_settings.json" if (ws / ".roo").is_dir() else ws / "roo_mcp_settings.json",

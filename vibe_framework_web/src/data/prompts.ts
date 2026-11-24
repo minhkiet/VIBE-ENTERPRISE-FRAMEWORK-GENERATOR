@@ -839,7 +839,8 @@ export const PROMPTS: PromptItem[] = [
 1. Cấu trúc Prompt Blueprint với thông số quang học máy ảnh (Hasselblad 80mm f/2.8, ánh sáng khuếch tán softbox 4200K, độ sâu trường ảnh mỏng).
 2. Bộ Negative Prompt chuyên sâu loại bỏ dị tật ngón tay, mắt lệch, chữ rác và hiện tượng viền nhựa AI.
 3. Bố cục đa khung hình cho cùng một concept hình ảnh (16:9 Banner máy tính, 1:1 Thẻ tính năng, 9:16 Story di động).
-4. Xuất tệp Asset Manifest JSON theo dõi kích thước, định dạng WebP, alt text SEO và hash chống trùng lặp.`,
+4. Xuất tệp Asset Manifest JSON theo dõi kích thước, định dạng WebP, alt text SEO và hash chống trùng lặp.
+5. Đăng ký gflow-cli MCP trong vibe tool bằng --add gflow hoặc --add gflow-readonly; bước đăng nhập Google Flow chỉ thực hiện một lần bởi người dùng.`,
     applies: [
       { type: 'skill', id: 'frontend-taste', reason: 'Tư duy hình ảnh điện ảnh thực tế, chống dị tật AI.' },
       { type: 'skill', id: 'full-output', reason: 'Tạo đủ prompt, negative prompt, CSS responsive và manifest.' },
@@ -873,7 +874,8 @@ export const PROMPTS: PromptItem[] = [
         by: 'full-output',
         bullets: [
           'Viết Prompt Blueprint chi tiết cho từng tỉ lệ 16:9 (Hero), 1:1 (Feature Cards), 9:16 (Mobile Banner)',
-          'Tạo tệp asset-manifest.json lưu trữ metadata, kích thước tối ưu và thuộc tính SEO alt text'
+          'Tạo tệp asset-manifest.json lưu trữ metadata, kích thước tối ưu và thuộc tính SEO alt text',
+          'Đăng ký gflow-cli MCP full (27 tools) hoặc read-only (25 tools) bằng tools/mcp_config_generator.py'
         ]
       },
       {

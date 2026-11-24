@@ -12,6 +12,7 @@ from unittest.mock import MagicMock, patch
 
 from mcp.pinterest_server import (
     PinterestClient,
+    _coerce_limit,
     search_pins,
     get_board_pins,
     get_user_pins,
@@ -197,6 +198,34 @@ class TestPinterestMcpTools(unittest.TestCase):
                 self.assertTrue(os.path.exists(out_file))
                 self.assertEqual(os.path.getsize(out_file), len(fake_bytes))
 
+
+
+class TestPinterestLimitCoercion(unittest.TestCase):
+    def test_coerce_limit_accepts_numeric_string(self):
+        self.assertEqual(_coerce_limit("5"), 5)
+        self.assertEqual(_coerce_limit(5), 5)
+
+    def test_coerce_limit_clamps_and_falls_back(self):
+        self.assertEqual(_coerce_limit("999"), 50)
+        self.assertEqual(_coerce_limit("0"), 1)
+        self.assertEqual(_coerce_limit("not-a-number", default=25), 25)
+
+    def test_search_pins_tool_accepts_string_limit(self):
+        fake_pin = {
+            "id": "424605071146368277",
+            "title": "test pin",
+            "description": "test description",
+            "images": {"orig": "https://i.pinimg.com/originals/test.jpg"},
+            "orig_image_url": "https://i.pinimg.com/originals/test.jpg",
+            "pin_url": "https://www.pinterest.com/pin/424605071146368277/",
+            "dominant_color": "#112233",
+            "pinner": {"username": "tester", "full_name": "Tester"},
+        }
+        with patch("mcp.pinterest_server._client.search_pins", return_value=[fake_pin]) as mock_search:
+            res = json.loads(search_pins(query="test", limit="5"))
+
+        self.assertEqual(res["status"], "success")
+        self.assertEqual(mock_search.call_args.kwargs["limit"], 5)
 
 
 if __name__ == "__main__":

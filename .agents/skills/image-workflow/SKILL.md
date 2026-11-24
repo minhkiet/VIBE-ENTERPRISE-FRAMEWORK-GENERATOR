@@ -125,6 +125,29 @@ python tools/google_flow_cli.py --prompt "$PROMPT" --count 1
 python tools/google_flow_cli.py --topic "hero banner" --style cinematic --ratio 16:9 --count 2
 python tools/google_flow_cli.py --prompt "poster event tỷ lệ 9:16" --dry-run
 
+### MCP qua gflow-cli (tùy chọn, chạy trực tiếp trong vibe tool)
+
+```bash
+# Cài một lần (uv + Chromium cho Flow)
+uv tool install gflow-cli
+uv tool run --from gflow-cli playwright install chromium
+gflow auth login --browser chrome   # một lần, do người dùng đăng nhập
+
+# Đăng ký MCP (stdio) cho mọi vibe tool qua generator của framework
+python tools/mcp_config_generator.py --add gflow
+# Chỉ đọc (ẩn tool tạo ảnh/video, không tiêu credits):
+python tools/mcp_config_generator.py --add gflow-readonly
+python tools/mcp_config_generator.py --target codex --add gflow
+# Riêng Cursor có thể tự ghi vào ~/.cursor/mcp.json:
+gflow mcp setup --target cursor
+```
+
+Tool MCP chính: `gflow_auth_status`, `gflow_list_models`, `gflow_get_credits`,
+`gflow_generate_image`, `gflow_generate_video`, `gflow_download_media`,
+`gflow_instructions_*`. Dùng `tools/google_flow_cli.py` khi cần tự tạo project +
+tải ảnh về `public/assets/generated/google-flow/<project>/` và ghi manifest; dùng
+MCP khi cần điều khiển Flow trực tiếp từ agent.
+
 # OR generate via DALL-E 3 (paid)
 curl -X POST https://api.openai.com/v1/images/generations \
   -H "Authorization: Bearer $OPENAI_API_KEY" \

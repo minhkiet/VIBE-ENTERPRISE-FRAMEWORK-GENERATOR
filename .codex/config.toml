@@ -65,3 +65,19 @@ args = [
     'D:\PROJECTS\CURSORS\CURSOR ENTERPRISE FRAMEWORK GENERATOR\tools\rea\scripts\rea.mjs',
     "mcp",
 ]
+
+[mcp_servers.gflow-cli]
+command = 'gflow'
+args = ['mcp', 'run']
+cwd = 'D:\PROJECTS\CURSORS\CURSOR ENTERPRISE FRAMEWORK GENERATOR'
+
+[mcp_servers.gflow-cli.env]
+WORKSPACE_ROOT = 'D:\PROJECTS\CURSORS\CURSOR ENTERPRISE FRAMEWORK GENERATOR'
+
+[mcp_servers.pinterest]
+command = 'C:\Python312\python.exe'
+args = ['D:\PROJECTS\CURSORS\CURSOR ENTERPRISE FRAMEWORK GENERATOR\mcp\pinterest_server.py']
+cwd = 'D:\PROJECTS\CURSORS\CURSOR ENTERPRISE FRAMEWORK GENERATOR'
+
+[mcp_servers.pinterest.env]
+PYTHONPATH = 'D:\PROJECTS\CURSORS\CURSOR ENTERPRISE FRAMEWORK GENERATOR'

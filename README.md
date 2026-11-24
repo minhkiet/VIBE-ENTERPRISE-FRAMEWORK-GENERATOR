@@ -38,6 +38,7 @@ Instead of starting every coding session from zero and falling into generic "AI 
 | **Agent Personas** | 18 specialized roles | `.cursor/AGENTS.md` |
 | **ECC Integration** | 68 agents, 292 skills, 94 commands | [ECC v2.2.2](https://github.com/affaan-m/ECC) |
 | **REA Integration** | Universal reverse engineering & decompilation | [morluto/rea v6.4.0](https://github.com/morluto/rea) |
+| **gflow-cli MCP** | Optional Google Flow image/video tools (Nano Banana 2.1, Imagen 4, Veo 3.1) | `python tools/mcp_config_generator.py --add gflow` |
 | **VBS Security Scanner** | 21 cross-language vulnerability rules + SCA | `.cursor/skills/sec_reverse-engineer-anything/` |
 | **Python Library** | 14 modules + 6 utility suites | `vibe_framework/` |
 | **Web Dashboard & CMS** | Vue 3 + Vite 6 + TypeScript + CMS Auth Gate | `vibe_framework_web/` |
@@ -165,6 +166,34 @@ DEFINE          PLAN           BUILD          VERIFY         SHIP
 └──────┘      └──────┘      └──────┘      └──────┘      └──────┘
   /spec          /plan          /build        /test         /ship
 ```
+
+### 1.1 Image & Video Workflow (gflow-cli)
+
+Framework hỗ trợ hai lớp tạo ảnh/video qua Google Flow:
+
+- `tools/google_flow_cli.py`: tự sinh prompt, model mặc định `Nano Banana 2.1`,
+  tự nhận tỉ lệ theo prompt, tạo project, tải asset về
+  `public/assets/generated/google-flow/<project>/` và ghi manifest.
+- `gflow-cli` MCP: điều khiển Flow trực tiếp từ vibe tool với
+  `gflow_generate_image`, `gflow_generate_video`, `gflow_download_media`,
+  `gflow_list_models`, `gflow_auth_status`.
+
+```bash
+# Cài đặt một lần
+uv tool install gflow-cli
+uv tool run --from gflow-cli playwright install chromium
+gflow auth login --browser chrome
+
+# Đăng ký MCP cho Cursor/Windsurf/Claude/Codex/Antigravity...
+python tools/mcp_config_generator.py --add gflow
+# Hoặc chỉ đọc, không hiển thị tool tiêu credits:
+python tools/mcp_config_generator.py --add gflow-readonly
+
+# Codex chỉ đọc config.toml, không đọc mcp.json:
+python tools/mcp_config_generator.py --target codex --add gflow
+```
+
+Sau khi đăng ký, restart vibe tool để MCP server xuất hiện. Generate tools cần `gflow auth login`; chế độ read-only dùng `--target codex --add gflow-readonly`.
 
 ### 2. Danh Sách Slash Commands Thông Dụng Trong IDE
 

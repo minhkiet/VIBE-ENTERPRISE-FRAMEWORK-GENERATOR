@@ -4,6 +4,26 @@
 
 ---
 
+## Unreleased — 2026-11-24
+
+### gflow-cli MCP Integration
+
+Tích hợp tùy chọn [ffroliva/gflow-cli](https://github.com/ffroliva/gflow-cli) như một MCP server chuẩn stdio, dùng trực tiếp từ Cursor, Windsurf, Claude Code, Codex và Antigravity. Không vendor source của upstream; framework-native pipeline vẫn là `tools/google_flow_cli.py`.
+
+| Thành phần | Chi tiết |
+|------------|----------|
+| Full MCP | `gflow mcp run` — 27 tools, gồm `gflow_generate_image`, `gflow_generate_video` |
+| Read-only MCP | `gflow mcp run --no-spend` — 25 tools, không hiển thị tool tiêu credits |
+| Generator | `python tools/mcp_config_generator.py --add gflow` / `--add gflow-readonly` |
+| Setup GUI | Catalog + script cài đặt tùy chọn trong `vibe-setup-gui-wpf` |
+| Docs/Skill | `README.md` và `image-workflow` skill cho cả `.agents` và `.cursor` |
+
+`gflow auth login --browser chrome` vẫn là bước một lần do người dùng thực hiện; framework không lưu credential cũng không tự tiêu credits.
+
+Sửa lỗi đăng ký: `--target codex` giờ ghi vào `.codex/config.toml` thay vì `.codex/mcp.json` (Codex bỏ qua mcp.json). Repo cũng đã đăng ký sẵn `gflow-cli` trong `.codex/config.toml` và `.cursor/mcp.json`.
+
+---
+
 ## 🎉 New Features v4.5.0
 
 ### REA (Reverse Engineer Anything) Integration

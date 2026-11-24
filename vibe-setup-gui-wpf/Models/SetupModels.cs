@@ -274,6 +274,28 @@ namespace CursorSetupWpf.Models
                 Command = "npx",
                 Args = "-y @browsermcp/mcp",
                 ToolCount = 15
+            },
+            new McpServerStatus
+            {
+                Name = "gflow-cli",
+                DisplayName = "gflow-cli",
+                Description = "Google Flow image/video MCP — Nano Banana 2.1, Imagen 4, Veo 3.1",
+                ServerKey = "gflow-cli",
+                Command = "gflow",
+                Args = "mcp run",
+                Cwd = "${CURSOR_PROJECT}",
+                ToolCount = 27
+            },
+            new McpServerStatus
+            {
+                Name = "pinterest",
+                DisplayName = "Pinterest MCP",
+                Description = "Pinterest image/video search, extraction and safe download",
+                ServerKey = "pinterest",
+                Command = "python",
+                Args = "mcp/pinterest_server.py",
+                Cwd = "${CURSOR_PROJECT}",
+                ToolCount = 12
             }
         };
     }

@@ -902,7 +902,7 @@ namespace CursorSetupWpf.Services
             Id = "cursor-mcp",
             Name = "Cursor MCP Servers Setup",
             FileName = "setup-cursor-mcp.bat",
-            Description = "Install and configure Cursor MCP servers (Framework, Autopilot, Memory, Browser).",
+            Description = "Install and configure MCP servers (Framework, Autopilot, Memory, Browser, gflow-cli).",
             Category = "ai",
             Icon = "\uE912",
             Blocks = new List<ScriptBlock>
@@ -929,6 +929,17 @@ namespace CursorSetupWpf.Services
                     Id = "mcp-vercel", Title = "Configure Vercel MCP", IsSelected = true,
                     Lines = new List<ScriptLine> {
                         new() { Command = "python", Args = "tools/mcp_config_generator.py --add vercel", Comment = "Register Vercel MCP in configuration" }
+                    }
+                },
+                new() {
+                    Id = "mcp-gflow", Title = "Install gflow-cli MCP (Google Flow, optional)", IsSelected = false,
+                    Lines = new List<ScriptLine> {
+                        new() { Command = "uv", Args = "--version", Comment = "Check uv prerequisite for gflow-cli" },
+                        new() { Command = "uv", Args = "tool install gflow-cli", Comment = "Install gflow-cli (requires uv)" },
+                        new() { Command = "uv", Args = "tool run --from gflow-cli playwright install chromium", Comment = "Install Chromium for Flow browser automation" },
+                        new() { Command = "gflow", Args = "--version", Comment = "Verify gflow-cli installation" },
+                        new() { Command = "gflow", Args = "auth login --browser chrome", Comment = "ONE-TIME: sign in to Google Flow in Chrome" },
+                        new() { Command = "python", Args = "tools/mcp_config_generator.py --add gflow", Comment = "Register gflow-cli MCP in configuration" }
                     }
                 },
                 new() {

@@ -25,6 +25,7 @@ Install:
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -123,12 +124,14 @@ class FrameworkInfo:
             self.commands_count = len(list(commands_dir.glob("source-command-*/SKILL.md")))
         
         # MCP servers
+        gflow_status = "installed" if shutil.which("gflow") else "config"
         self.mcp_servers = [
             {"name": "vibe-framework", "status": "available"},
             {"name": "cursor-autopilot", "status": "available"},
             {"name": "cursor-memory", "status": "available"},
             {"name": "vercel", "status": "config"},
             {"name": "browser", "status": "config"},
+            {"name": "gflow-cli", "status": gflow_status},
         ]
     
     def to_dict(self) -> dict:
@@ -201,8 +204,8 @@ def status():
         exists = color("✓", Colors.GREEN) if path.exists() else color("✗", Colors.RED)
         click.echo(f"  {exists} {d}/")
 
-@skills.command()
-def list():
+@skills.command("list")
+def list_skills():
     """List all available skills."""
     root = find_cursor_root()
     if not root:
@@ -272,18 +275,23 @@ def status():
     click.echo(color("\n🔌 MCP Servers Status", Colors.HEADER + Colors.BOLD))
     click.echo(color("=" * 50, Colors.CYAN))
     
+    gflow_available = shutil.which("gflow") is not None
     servers = [
         ("vibe-framework", "Rules, Skills, Agents Registry", True),
         ("cursor-autopilot", "Workflow Automation & Gates", True),
         ("cursor-memory", "Token-aware Memory Management", True),
         ("vercel", "Vercel Deployment Integration", False),
         ("browser", "Browser Automation (CDP)", False),
+        ("gflow-cli", "Google Flow Image/Video MCP (Nano Banana 2.1)", gflow_available),
     ]
     
     for name, desc, available in servers:
         status_icon = color("●", Colors.GREEN) if available else color("○", Colors.YELLOW)
         click.echo(f"\n  {status_icon} {color(name, Colors.BOLD)}")
         click.echo(f"     {desc}")
+        if name == "gflow-cli":
+            hint = "registered via --add gflow / --add gflow-readonly"
+            click.echo(f"     {hint} · binary {'found' if available else 'missing'}")
 
 @mcp.command()
 @click.argument("server")
@@ -341,8 +349,8 @@ def send(platform: str, token: str, uid: str, message: str):
     click.echo(f"API integration for {platform} ready.")
     click.echo("Use Python to call the integration:")
 
-@api.command()
-def list():
+@api.command("list")
+def list_apis():
     """List available API integrations."""
     integrations = [
         ("zalo", "Zalo OA API", "Messages, profile, menu, followers"),

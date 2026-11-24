@@ -65,6 +65,24 @@ mcp = FastMCP("pinterest")
 DEFAULT_TIMEOUT = 20
 MAX_DOWNLOAD_BYTES = 25 * 1024 * 1024  # 25 MB max (for images)
 MAX_VIDEO_DOWNLOAD_BYTES = 250 * 1024 * 1024  # 250 MB max (for videos)
+
+
+def _coerce_limit(value: Any, default: int = 25, low: int = 1, high: int = 50) -> int:
+    """Normalize an MCP tool limit that may arrive as a string.
+
+    Different vibe tools serialize numeric tool arguments differently. Some
+    send ``"5"`` instead of ``5``, which breaks ``min()/max()`` comparisons.
+    Invalid values fall back to ``default`` and valid values are clamped.
+    """
+    if isinstance(value, bool):
+        return default
+    try:
+        number = int(str(value).strip())
+    except (TypeError, ValueError):
+        return default
+    return max(low, min(number, high))
+
+
 ALLOWED_IMAGE_HOSTS = (
     "pinimg.com",
     "i.pinimg.com",
@@ -294,6 +312,7 @@ class PinterestClient:
         Search Pinterest pins by keyword.
         Returns a list of structured pin records.
         """
+        limit = _coerce_limit(limit)
         self._warmup_search(query)
         source_url = f"/search/pins/?q={urllib.parse.quote(query)}&rs=typed"
 
@@ -308,7 +327,7 @@ class PinterestClient:
                 "domains": None,
                 "filters": None,
                 "journey_depth": None,
-                "page_size": str(min(max(limit, 1), 50)),
+                "page_size": str(limit),
                 "price_max": None,
                 "price_min": None,
                 "query_pin_sigs": None,
@@ -415,6 +434,7 @@ class PinterestClient:
         Search Pinterest specifically for video pins.
         Returns a list of structured video records with stream/download URLs.
         """
+        limit = _coerce_limit(limit, default=15, high=30)
         q_lower = query.lower()
         search_query = query if ("video" in q_lower or "reel" in q_lower or "animation" in q_lower or "motion" in q_lower) else f"{query} video"
         self._warmup_search(search_query)
@@ -513,6 +533,7 @@ class PinterestClient:
         """
         Fetch pins from a user's board via the official widget endpoint.
         """
+        limit = _coerce_limit(limit)
         clean_user = username.strip().strip("/")
         clean_board = board.strip().strip("/")
         api_url = f"{self.WIDGETS_URL}/v3/pidgets/boards/{clean_user}/{clean_board}/pins/"
@@ -554,6 +575,7 @@ class PinterestClient:
         """
         Fetch recent pins from a user profile via the official widget endpoint.
         """
+        limit = _coerce_limit(limit)
         clean_user = username.strip().strip("/")
         api_url = f"{self.WIDGETS_URL}/v3/pidgets/users/{clean_user}/pins/"
 
@@ -770,6 +792,7 @@ def search_pins(query: str, limit: int = 25, resolution: str = "orig") -> str:
         JSON string containing list of pins with id, title, description, pin_url, dominant_color, image URLs, and pinner info.
     """
     try:
+        limit = _coerce_limit(limit)
         pins = _client.search_pins(query=query, limit=limit)
         results = []
         for p in pins:
@@ -812,6 +835,7 @@ def get_board_pins(username: str, board: str, limit: int = 25, resolution: str =
         JSON string containing board pins with metadata and image URLs.
     """
     try:
+        limit = _coerce_limit(limit)
         pins = _client.get_board_pins(username=username, board=board, limit=limit)
         results = []
         for p in pins:
@@ -854,6 +878,7 @@ def get_user_pins(username: str, limit: int = 25, resolution: str = "orig") -> s
         JSON string containing user pins with metadata and image URLs.
     """
     try:
+        limit = _coerce_limit(limit)
         pins = _client.get_user_pins(username=username, limit=limit)
         results = []
         for p in pins:
@@ -919,6 +944,7 @@ def extract_from_url(url: str, limit: int = 25) -> str:
         JSON string with extracted images, pins, or details.
     """
     try:
+        limit = _coerce_limit(limit)
         clean_url = url.strip()
 
         # Case 1: Short link pin.it or pin page
@@ -1031,6 +1057,7 @@ def search_videos(query: str, limit: int = 15) -> str:
         thumbnails, durations, dimensions, and author info.
     """
     try:
+        limit = _coerce_limit(limit, default=15, high=30)
         videos = _client.search_videos(query=query, limit=limit)
         return json.dumps({
             "status": "success",

@@ -160,3 +160,449 @@ textarea {
   --ux-accent: #92400e;
   --ux-sunk: #f3e8d8;
 }
+
+/* Secondary template page support. Zero specificity keeps template styles authoritative. */
+:where(.crm-pricing-body, .pricing-page-body, .detail-page-body, .car-detail-page-body, .testdrive-page-body, .reservation-page-body, .menu-page-body) {
+  min-height: 100vh;
+}
+
+:where(.text-center) { text-align: center; }
+:where(.text-muted) { color: var(--text-2, var(--text-muted, var(--color-text-secondary, #64748b))); }
+:where(.text-accent) { color: var(--accent, var(--color-brand-primary, #0ea5e9)); }
+
+:where(.section-head, .section-header) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+:where(.section-head.text-center, .section-header.text-center) { align-items: center; text-align: center; }
+:where(.sub-title, .top-subtext, .trust-title) { color: var(--text-2, var(--text-muted, #64748b)); font-size: 1rem; line-height: 1.6; }
+:where(.section-header .sub-title) { margin-top: 0.25rem; }
+
+:where(.hero-content, .hero-copy, .hero-text) {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1rem;
+}
+
+:where(.hero-text) { max-width: 36rem; }
+:where(.hero-bg-overlay) {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.18));
+  pointer-events: none;
+}
+
+:where(.nav-actions, .header-actions, .w-actions, .m-cta-row, .top-left, .top-right, .ctr-left, .modal-actions, .modal-btns) {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+:where(.nav-cta, .btn-label) { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; }
+:where(.top-link) { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--accent, #f59e0b); font-size: 0.85rem; }
+:where(.btn-block, .btn-full) { width: 100%; justify-content: center; }
+:where(.btn-sm) { padding: 0.45rem 0.8rem; font-size: 0.85rem; }
+:where(.btn-xs) { padding: 0.3rem 0.6rem; font-size: 0.78rem; }
+:where(.btn-xl) { padding: 1rem 1.5rem; font-size: 1.05rem; }
+:where(.btn-share, .btn-calc-loan, .btn-open-drive, .btn-request-quote, .open-detail-modal) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+:where(.btn-outline) { border: 1px solid var(--border, #d4d4d8); background: transparent; color: inherit; }
+:where(.btn-momo) { background: #d81d2a; border-color: #d81d2a; color: #fff; }
+:where(.btn-zalopay) { background: #0068ff; border-color: #0068ff; color: #fff; }
+:where(.btn-vietqr) { background: #0b7a4b; border-color: #0b7a4b; color: #fff; }
+
+:where(.footer-grid, .footer-inner) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+:where(.footer-col) { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+:where(.footer-col-main) { grid-column: span 2; }
+:where(.footer-col-title) { color: var(--text, #18181b); font-size: 0.9rem; font-weight: 600; }
+:where(.footer-links) { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+:where(.footer-logo, .logo-titles) { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; }
+:where(.footer-tagline, .footer-copy, .contact-info, .table-info, .tc-info, .bdb-info, .brand-info, .brand-text, .logo-text) {
+  color: var(--text-2, var(--text-muted, #64748b));
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+:where(.calc-form, .final-form, .consult-form, .booking-form-block, .solution-content) {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+:where(.calc-inputs, .calc-controls, .calc-action-row, .calc-card-header, .rsi-head, .cc-row) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+:where(.calc-left, .calc-right, .dl-left, .dl-right, .sp-left, .vb-form-side, .consult-left, .fb-left, .detail-main-col, .detail-sidebar-col) {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+:where(.calc-results, .calc-summary-card, .roi-results-box, .ac-info, .spec-info, .fp-layer) {
+  padding: 1.25rem;
+  border: 1px solid var(--border, var(--border-subtle, rgba(148, 163, 184, 0.25)));
+  border-radius: var(--radius-lg, var(--radius-md, 12px));
+  background: var(--surface-2, var(--bg-card, var(--surface, #fff)));
+}
+
+:where(.calc-title) { font-size: 1.25rem; font-weight: 700; }
+:where(.calc-desc, .calc-sliders-block, .cc-label, .csc-label, .csc-sub, .csc-unit) {
+  color: var(--text-2, var(--text-muted, #64748b));
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+:where(.cb-item) {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-subtle, var(--border, rgba(148, 163, 184, 0.25)));
+  border-radius: var(--radius-md, 10px);
+  background: var(--bg-card, var(--surface, #fff));
+}
+
+:where(.csc-breakdown) { display: grid; gap: 0.5rem; margin-top: 1rem; }
+:where(.csc-big-price) { font-size: clamp(1.5rem, 4vw, 2.25rem); font-weight: 700; letter-spacing: -0.03em; }
+:where(.bm-icon) {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--accent-soft, rgba(245, 158, 11, 0.15));
+  color: var(--accent, #f59e0b);
+}
+
+:where(.bm-code-box) {
+  padding: 0.75rem 1rem;
+  border: 1px dashed var(--border, #d4d4d8);
+  border-radius: var(--radius-md, 10px);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+:where(.booking-modal-backdrop) {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.68);
+}
+
+:where(.booking-modal-card) {
+  width: min(100%, 34rem);
+  max-height: 90vh;
+  overflow: auto;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid var(--border-subtle, var(--border, rgba(148, 163, 184, 0.25)));
+  border-radius: var(--radius-lg, 16px);
+  background: var(--bg-card, var(--surface, #fff));
+  color: var(--text-main, var(--text, #18181b));
+}
+
+:where(.pricing-hero-section, .pricing-cards-section, .matrix-section, .roi-section, .amenities-section, .guest-reviews-section, .itinerary-section) {
+  padding: clamp(3rem, 8vw, 6rem) 0;
+}
+
+:where(.pricing-hero-section) {
+  background: radial-gradient(circle at 50% 0%, var(--accent-soft, rgba(79, 70, 229, 0.12)), transparent 60%), var(--bg, #fafafa);
+}
+
+:where(.crm-pricing-grid) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+:where(.crm-price-card) {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  border: 1px solid var(--border, #e4e4e7);
+  border-radius: var(--radius-lg, 14px);
+  background: var(--surface-2, #fff);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.06));
+}
+
+:where(.crm-price-card.featured) { border-color: var(--accent, #3d5afe); box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, 0.08)); }
+:where(.cpc-header) { display: grid; gap: 0.6rem; }
+:where(.cpc-tier-badge, .discount-pill) {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--accent-soft, #eef1ff);
+  color: var(--accent, #3d5afe);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+:where(.cpc-tier-badge.gold, .discount-pill.gold) { background: rgba(245, 158, 11, 0.16); color: #b45309; }
+:where(.cpc-popular-badge) { display: inline-flex; align-items: center; gap: 0.4rem; color: #b45309; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; }
+:where(.cpc-tier-title) { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
+:where(.cpc-tier-desc, .cpc-cycle, .cpc-bill-note) { color: var(--text-2, #52525b); font-size: 0.85rem; line-height: 1.6; }
+:where(.cpc-price-box) { display: flex; align-items: baseline; gap: 0.3rem; flex-wrap: wrap; }
+:where(.cpc-curr) { font-size: 1.1rem; font-weight: 600; }
+:where(.cpc-val) { font-size: clamp(2rem, 5vw, 2.75rem); font-weight: 700; letter-spacing: -0.04em; }
+:where(.cpc-features-list) { display: grid; gap: 0.6rem; margin-top: auto; }
+:where(.cpc-fl-title) { color: var(--text-2, #52525b); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+:where(.cpc-fi) { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; line-height: 1.5; }
+:where(.billing-switcher-wrap) { display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+:where(.billing-label) { color: var(--text-2, #52525b); font-size: 0.875rem; }
+:where(.billing-label.active) { color: var(--text, #18181b); font-weight: 600; }
+:where(.switch-toggle-btn) { position: relative; width: 3.25rem; height: 1.75rem; border: 0; border-radius: 999px; background: var(--border-2, #d4d4d8); cursor: pointer; transition: background 0.2s ease; }
+:where(.switch-toggle-btn.active) { background: var(--accent, #3d5afe); }
+:where(.switch-slider) { position: absolute; top: 0.25rem; left: 0.25rem; width: 1.25rem; height: 1.25rem; border-radius: 50%; background: #fff; transition: transform 0.2s ease; }
+:where(.switch-toggle-btn.active .switch-slider) { transform: translateX(1.5rem); }
+:where(.roi-card-wrapper) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid var(--border, #e4e4e7);
+  border-radius: var(--radius-xl, 20px);
+  background: var(--surface, #f6f3ec);
+}
+
+:where(.roi-left, .roi-right) { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+
+:where(.roi-eyebrow, .download-eyebrow) { display: inline-block; margin-bottom: 0.75rem; color: var(--accent, #3d5afe); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+:where(.download-eyebrow) { color: #b45309; }
+:where(.roi-title) { font-size: clamp(1.5rem, 4vw, 2.25rem); line-height: 1.15; letter-spacing: -0.03em; }
+:where(.roi-desc) { color: var(--text-2, #52525b); line-height: 1.6; }
+:where(.roi-sliders) { display: grid; gap: 1.25rem; margin-top: 1.5rem; }
+:where(.roi-slider-item) { display: grid; gap: 0.6rem; }
+:where(.roi-results-box) { display: grid; gap: 1rem; background: var(--surface-2, #fff); }
+:where(.rrb-item) { display: grid; gap: 0.35rem; }
+:where(.rrb-lbl, .rrb-sub) { color: var(--text-2, #52525b); font-size: 0.8rem; line-height: 1.5; }
+:where(.rrb-val) { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 700; letter-spacing: -0.03em; }
+:where(.rrb-divider) { height: 1px; background: var(--border, #e4e4e7); }
+:where(.rrb-roi-badge) { padding: 0.75rem 1rem; border-radius: var(--radius, 8px); background: var(--accent-soft, #eef1ff); color: var(--accent, #3d5afe); font-weight: 600; }
+:where(.matrix-table-wrap) { overflow-x: auto; border: 1px solid var(--border, #e4e4e7); border-radius: var(--radius-lg, 14px); }
+:where(.crm-matrix-table) { width: 100%; min-width: 40rem; border-collapse: collapse; }
+:where(.crm-matrix-table th, .crm-matrix-table td) { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border, #e4e4e7); text-align: left; font-size: 0.875rem; }
+:where(.crm-matrix-table th) { background: var(--bg-2, #f4f4f5); font-weight: 600; }
+:where(.crm-matrix-table .group-header td) { background: var(--accent-soft, #eef1ff); color: var(--accent, #3d5afe); font-weight: 700; }
+:where(.crm-matrix-table .hl-col) { background: var(--accent-soft, #eef1ff); }
+:where(.final-form) { display: flex; gap: 0.75rem; max-width: 36rem; margin: 1.5rem auto 0; }
+
+:where(.floorplan-display) { position: relative; overflow: hidden; border: 1px solid var(--border, rgba(148, 163, 184, 0.25)); border-radius: var(--radius-lg, 16px); background: var(--surface, #fff); }
+:where(.fp-svg) { display: block; width: 100%; height: auto; }
+:where(.breadcrumbs) { display: flex; flex-wrap: wrap; gap: 0.5rem; color: var(--text-muted, #94a3b8); font-size: 0.8rem; }
+:where(.breadcrumbs .current) { color: var(--accent, #f59e0b); font-weight: 600; }
+:where(.car-year, .price-block, .designer-credit, .designer-tag, .voucher-link) { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-muted, #94a3b8); font-size: 0.85rem; }
+:where(.cgb-content, .cgb-visual, .about-text-content, .vb-content, .branches-info-block, .solution-pane, .fc-stat-content, .fl-body, .pc-body, .pc-wide, .rc-content) { display: grid; gap: 1rem; min-width: 0; }
+:where(.pc-wide) { grid-column: 1 / -1; }
+:where(.lang-opt, .lang-sep) { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; }
+:where(.toast-content) { display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 1rem; border-radius: var(--radius-md, 10px); background: var(--bg-elevated, var(--surface, #fff)); color: var(--text-main, var(--text, #18181b)); }
+:where(.m-one) { display: grid; gap: 1rem; padding: 1.25rem; border-radius: var(--radius-lg, 16px); background: var(--bg-card, var(--surface, #fff)); }
+:where(.amenities-section, .guest-reviews-section, .itinerary-section) { background: var(--surface, var(--bg-subtle, #f8fafc)); }
+:where(.itin-panels) { display: grid; gap: 1rem; }
+:where(.dest-name) { font-size: 1rem; font-weight: 600; }
+:where(.compass, .inscription, .trigrams, .yin-yang) { display: grid; place-items: center; gap: 0.5rem; }
+:where(.compass, .inscription) { min-height: 8rem; padding: 1rem; border: 1px solid var(--border, #e4e4e7); border-radius: var(--radius-lg, 16px); }
+:where(.node-f0, .node-f1, .node-f2, .mini-svg-item) { display: grid; place-items: center; min-width: 0; }
+:where(.feat-2, .feat-3, .feat-4, .feat-5, .feat-6, .stat, .h-stat, .hstat, .review-featured, .new, .filled, .sep, .up) { display: inline-flex; align-items: center; gap: 0.4rem; }
+:where(.zone-row, .zone-side) { display: grid; gap: 1rem; min-width: 0; }
+:where(.zone-side) { align-content: start; }
+
+@media (max-width: 40rem) {
+  :where(.final-form, .billing-switcher-wrap, .top-left, .top-right, .ctr-left) { flex-direction: column; align-items: stretch; }
+  :where(.footer-col-main) { grid-column: auto; }
+  :where(.crm-matrix-table) { min-width: 34rem; }
+}
+
+/* Visual system v2.1: domain-tuned photography, restrained motion, professional surfaces. */
+body[data-ux] {
+  --ux-ease: cubic-bezier(.16, 1, .3, 1);
+  --ux-shadow: 0 18px 44px -28px rgba(23, 33, 29, .45);
+  --ux-photo-scale: 1.045;
+  --ux-photo-filter: none;
+}
+
+body:is([data-ux="agritech"], [data-ux="farm"], [data-ux="orchard"]) {
+  --ux-shadow: 0 18px 44px -28px rgba(47, 111, 78, .5);
+  --ux-photo-filter: saturate(1.08) contrast(1.02);
+}
+
+body:is([data-ux="aitech"], [data-ux="computech"], [data-ux="edu-tutor"], [data-ux="image-workflow"]) {
+  --ux-shadow: 0 18px 44px -28px rgba(37, 99, 235, .35);
+  --ux-photo-filter: saturate(1.03) contrast(1.05);
+}
+
+body:is([data-ux="auto-showroom"]) {
+  --ux-shadow: 0 18px 44px -28px rgba(15, 23, 42, .55);
+  --ux-photo-filter: contrast(1.1) saturate(1.05);
+  --ux-photo-scale: 1.035;
+}
+
+body:is([data-ux="beauty-spa"], [data-ux="sale"]) {
+  --ux-shadow: 0 18px 44px -28px rgba(181, 71, 107, .4);
+  --ux-photo-filter: saturate(.94) brightness(1.03);
+}
+
+body:is([data-ux="blog"], [data-ux="portfolio"]) {
+  --ux-photo-filter: contrast(1.04) saturate(.96);
+}
+
+body:is([data-ux="church"]) {
+  --ux-accent: #8a6a3d;
+  --ux-sunk: #e8dfd0;
+  --ux-shadow: 0 18px 44px -28px rgba(138, 106, 61, .42);
+  --ux-photo-filter: sepia(.08) saturate(.86) contrast(1.02);
+  --ux-photo-scale: 1.03;
+}
+
+body:is([data-ux="bazi"], [data-ux="numerology"]) {
+  --ux-shadow: 0 18px 44px -28px rgba(154, 107, 47, .5);
+  --ux-photo-filter: sepia(.1) saturate(.9) contrast(1.04);
+  --ux-photo-scale: 1.03;
+}
+
+body:is([data-ux="cms-landing-enterprise"], [data-ux="insurance"]) {
+  --ux-shadow: 0 18px 44px -28px rgba(15, 118, 110, .4);
+  --ux-photo-filter: saturate(.82) contrast(1.04);
+  --ux-photo-scale: 1.025;
+}
+
+body:is([data-ux="computech"], [data-ux="realestate"]) {
+  --ux-shadow: 0 18px 44px -28px rgba(154, 107, 47, .4);
+  --ux-photo-filter: saturate(.88) contrast(1.08);
+  --ux-photo-scale: 1.05;
+}
+
+body:is([data-ux="travel"]) {
+  --ux-shadow: 0 18px 44px -28px rgba(15, 118, 110, .42);
+  --ux-photo-filter: saturate(1.12) contrast(1.03);
+  --ux-photo-scale: 1.06;
+}
+
+body:is([data-ux="crm"], [data-ux="dashboard-ui"]) {
+  --ux-shadow: 0 18px 44px -28px rgba(79, 70, 229, .35);
+  --ux-photo-filter: saturate(.95) contrast(1.06);
+  --ux-photo-scale: 1.025;
+}
+
+body:is([data-ux="fitness"], [data-ux="food-delivery"], [data-ux="viet-restaurant"]) {
+  --ux-photo-filter: saturate(1.1) contrast(1.04);
+  --ux-photo-scale: 1.055;
+}
+
+body:is([data-ux="preschool"]) {
+  --ux-photo-filter: saturate(1.05) brightness(1.04);
+}
+
+/* Image frames clip the zoom while template styles keep their own radius and borders. */
+body[data-ux] :where(
+  .pc-image, .car-media, .dish-media, .gallery-zoom, .img-container,
+  .ac-image, .nc-image, .w-image
+) {
+  position: relative;
+  overflow: hidden;
+}
+
+body[data-ux] :where(
+  .hero-visual, .pc-image, .car-media, .dish-media, .gallery-item,
+  .gallery-zoom, .img-container, .ac-image, .nc-image, .w-image,
+  .priest-image, .dest-card, .hosp-card, .fruit-card, .post-card,
+  .g-card, .product-card, .car-card, .dish-card, .bento-card,
+  .prod-card, .spec-bento-card
+) img {
+  filter: var(--ux-photo-filter);
+  transition: transform .75s var(--ux-ease), filter .75s var(--ux-ease);
+}
+
+body[data-ux] :where(
+  .hero-visual, .pc-image, .car-media, .dish-media, .gallery-item,
+  .gallery-zoom, .img-container, .ac-image, .nc-image, .w-image,
+  .priest-image, .dest-card, .hosp-card, .fruit-card, .post-card,
+  .g-card, .product-card, .car-card, .dish-card, .bento-card,
+  .prod-card, .spec-bento-card
+):hover img {
+  transform: scale(var(--ux-photo-scale));
+}
+
+/* Tinted elevation on the components that actually carry content. */
+body[data-ux] :where(
+  .product-card, .car-card, .dish-card, .bento-card, .step-card,
+  .price-card, .g-card, .review-card, .testimonial-card, .dest-card,
+  .prod-card, .hosp-card, .fruit-card, .post-card, .doc-card, .t-card,
+  .service-card, .amenity-card, .brand-card, .press-card, .news-card
+) {
+  transition: transform .4s var(--ux-ease), box-shadow .4s var(--ux-ease), border-color .4s var(--ux-ease), background-color .4s var(--ux-ease);
+}
+
+body[data-ux] :where(
+  .product-card, .car-card, .dish-card, .bento-card, .step-card,
+  .price-card, .g-card, .review-card, .testimonial-card, .dest-card,
+  .prod-card, .hosp-card, .fruit-card, .post-card, .doc-card, .t-card,
+  .service-card, .amenity-card, .brand-card, .press-card, .news-card
+):hover {
+  transform: translateY(-4px);
+  box-shadow: var(--ux-shadow);
+}
+
+/* Financial, schedule and rating figures stay aligned across cards. */
+body[data-ux] :where(
+  .hero-stat-item strong, .stat-card strong, .card-metric, .price-block,
+  .price, .amount, .rrb-val, .bcard-num, .number-card-num, .kpi-card strong
+) {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+body[data-ux] :where(.btn, .btn-primary, .btn-outline, .cta, button) {
+  transition: transform .2s var(--ux-ease), box-shadow .2s var(--ux-ease), filter .2s var(--ux-ease), background-color .2s var(--ux-ease), color .2s var(--ux-ease), border-color .2s var(--ux-ease);
+}
+
+body[data-ux] :where(.btn, .btn-primary, .btn-outline, .cta, button):active {
+  transform: translateY(1px) scale(.99);
+  filter: brightness(.96);
+}
+
+@keyframes ux-rise-in {
+  from { opacity: .55; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    body[data-ux] :where(
+      .product-card, .bento-card, .dish-card, .car-card, .step-card,
+      .price-card, .g-card, .review-card, .testimonial-card, .dest-card,
+      .prod-card, .hosp-card, .fruit-card, .post-card, .doc-card, .t-card
+    ) {
+      animation: ux-rise-in both linear;
+      animation-timeline: view();
+      animation-range: entry 8% cover 28%;
+    }
+  }
+}

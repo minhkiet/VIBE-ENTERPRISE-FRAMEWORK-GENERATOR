@@ -285,6 +285,19 @@ namespace CursorSetupWpf.Services
                     "read_file", "write_file", "list_directory"
                 }
             ),
+            // codegraph - vendored framework/code graph MCP (standalone script in mcp/)
+            (
+                "codegraph",
+                null,
+                null,
+                "Code Graph MCP",
+                "Framework rules, skills and code graph scoped to the installed workspace.",
+                new[]
+                {
+                    "ask_framework", "scan_code_graph", "find_related_files",
+                    "build_context", "dump_context"
+                }
+            ),
         };
 
         static readonly string[] LegacyMcpKeys = { "framework", "autopilot", "memory" };
@@ -1080,6 +1093,26 @@ namespace CursorSetupWpf.Services
                         {
                             ["command"] = "python",
                             ["args"] = new[] { fileOpsScript },
+                            ["cwd"] = installPath,
+                            ["env"] = new Dictionary<string, string>
+                            {
+                                ["PYTHONPATH"] = installPath
+                            },
+                            ["description"] = entry.Description,
+                        };
+                    }
+                    // codegraph MCP - standalone vendored framework/code graph script
+                    else if (entry.ServerKey == "codegraph")
+                    {
+                        string codeGraphScript = Path.Combine(installPath, "mcp", "framework_server.py");
+                        if (!File.Exists(codeGraphScript))
+                        {
+                            continue;
+                        }
+                        servers[entry.ServerKey] = new Dictionary<string, object>
+                        {
+                            ["command"] = "python",
+                            ["args"] = new[] { codeGraphScript },
                             ["cwd"] = installPath,
                             ["env"] = new Dictionary<string, string>
                             {

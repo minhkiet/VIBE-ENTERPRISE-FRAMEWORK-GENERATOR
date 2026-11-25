@@ -21,7 +21,7 @@ $McpTargetDir = if ([string]::IsNullOrWhiteSpace($DestinationDir)) {
 }
 
 Write-Host ""
-Write-Host "MCP Tools Integration Script v4.7.0" -ForegroundColor Cyan
+Write-Host "MCP Tools Integration Script v4.10.0" -ForegroundColor Cyan
 Write-Host "===========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Target : $McpTargetDir"

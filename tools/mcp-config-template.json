@@ -61,12 +61,21 @@
         "PYTHONPATH": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR"
       },
       "description": "File Operations MCP - search, read, copy and manage workspace files"
+    },
+    "codegraph": {
+      "command": "C:\\Python312\\python.exe",
+      "args": ["D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR\\mcp\\framework_server.py"],
+      "cwd": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR",
+      "env": {
+        "PYTHONPATH": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR"
+      },
+      "description": "Code Graph MCP - scan project dependencies and find related files"
     }
   },
   "_meta": {
     "version": "1.0.0",
-    "framework_version": "4.7.0",
-    "total_tools": 48,
-    "description": "Vibe Enterprise Framework MCP stack - registry + autopilot + memory + REA + Pinterest image search + file operations"
+    "framework_version": "4.10.0",
+    "total_tools": 50,
+    "description": "Vibe Enterprise Framework MCP stack - registry + autopilot + memory + REA + code graph + Pinterest image search + file operations"
   }
 }

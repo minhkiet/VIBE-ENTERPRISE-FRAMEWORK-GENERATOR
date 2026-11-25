@@ -1,5 +1,6 @@
 """Tests for image-related MCP configuration generation."""
 
+import json
 import unittest
 import tempfile
 from pathlib import Path
@@ -19,6 +20,23 @@ class TestImageMcpConfig(unittest.TestCase):
         generator = McpConfigGenerator(str(repo_root), target="cursor")
 
         self.assertIn("pinterest", generator.config.to_dict()["mcpServers"])
+
+    def test_generator_includes_codegraph_by_default(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        generator = McpConfigGenerator(str(repo_root), target="cursor")
+
+        self.assertIn("codegraph", generator.config.to_dict()["mcpServers"])
+
+    def test_generator_adds_codegraph_server(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        generator = McpConfigGenerator(str(repo_root), target="cursor")
+
+        generator.add_codegraph()
+
+        server = generator.config.to_dict()["mcpServers"]["codegraph"]
+        self.assertEqual(server["command"], generator.python_cmd)
+        self.assertTrue(any("framework_server.py" in arg for arg in server["args"]))
+        self.assertIn("PYTHONPATH", server["env"])
 
     def test_generator_adds_file_ops_server(self):
         repo_root = Path(__file__).resolve().parent.parent
@@ -103,7 +121,20 @@ class TestImageMcpConfig(unittest.TestCase):
 
         self.assertIn("pinterest_server.py", script)
         self.assertIn("file_server.py", script)
+        self.assertIn("framework_server.py", script)
+        self.assertIn("mcp_runtime.py", script)
         self.assertIn("tools\\rea", script)
+        self.assertIn("$archiveTotal = @(Get-ChildItem -Path $verifyDir -Recurse -File -Force", script)
+        self.assertIn("total_files = $archiveTotal", script)
+
+    def test_shared_template_registers_codegraph(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        template = json.loads(
+            (repo_root / "tools" / "mcp-config-template.json").read_text(encoding="utf-8")
+        )
+
+        self.assertIn("codegraph", template["mcpServers"])
+        self.assertEqual(template["_meta"]["framework_version"], "4.10.0")
 
     def test_installer_uses_supported_browser_package_and_file_ops(self):
         repo_root = Path(__file__).resolve().parent.parent
@@ -114,6 +145,7 @@ class TestImageMcpConfig(unittest.TestCase):
         self.assertIn("@playwright/mcp@0.0.86", installer)
         self.assertNotIn("@modelcontextprotocol/server-browser", installer)
         self.assertIn('entry.ServerKey == "file-ops"', installer)
+        self.assertIn('entry.ServerKey == "codegraph"', installer)
 
 
 if __name__ == "__main__":

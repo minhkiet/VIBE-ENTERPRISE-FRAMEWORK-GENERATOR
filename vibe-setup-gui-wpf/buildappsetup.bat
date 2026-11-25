@@ -1,7 +1,7 @@
 @echo off
 REM ============================================================
 REM buildappsetup.bat
-REM VibeCode Enterprise Framework - Build Script v4.7.0
+REM VibeCode Enterprise Framework - Build Script v4.10.0
 REM ============================================================
 REM Purpose:
 REM   1. Check prerequisites (dotnet, scripts, MCP tools)
@@ -70,7 +70,7 @@ set "OUTPUT_DIR=%PROJECT_DIR%\bin\%BUILD_CONFIG%\%TFM%\%BUILD_RID%\publish"
 REM ----- Header -----
 echo.
 echo ===========================================================
-echo  VibeCode Enterprise Framework - Build Script v4.7.0
+echo  VibeCode Enterprise Framework - Build Script v4.10.0
 echo ===========================================================
 echo  Project   : %PROJECT_DIR%
 echo  Config    : %BUILD_CONFIG%

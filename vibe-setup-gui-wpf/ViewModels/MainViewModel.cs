@@ -36,6 +36,12 @@ namespace CursorSetupWpf.ViewModels
                 if (value < 0) value = 0;
                 if (Set(ref _selectedNavIndex, value))
                 {
+                    var nav = NavItems.FirstOrDefault(item => item.Index == value);
+                    if (nav != null && !ReferenceEquals(_selectedNavItem, nav))
+                    {
+                        _selectedNavItem = nav;
+                        OnPropertyChanged(nameof(SelectedNavItem));
+                    }
                     OnPropertyChanged(nameof(IsInstallPage));
                     OnPropertyChanged(nameof(InstallSurfaceHint));
                     if (value == 0)
@@ -68,11 +74,48 @@ namespace CursorSetupWpf.ViewModels
         public string LogToggleButtonText => IsLogExpanded
             ? LocalizationService.T("btn.collapse")
             : LocalizationService.T("btn.expand");
+        public string LogCopyLabel => LocalizationService.T("log.copy_diagnostics");
+        public string LogClearLabel => LocalizationService.T("log.clear");
         public string LatestLogLine => LogLines.Count > 0 ? LogLines[^1] : "";
         public ICommand ToggleLogCommand { get; }
         public ICommand ClearLogCommand { get; }
+        public ICommand CopyLogCommand { get; }
+        public ICommand ClearNavSearchCommand { get; }
+        public ICommand GoToPageCommand { get; }
 
         public ThreadSafeObservableCollection<NavItem> NavItems { get; } = new();
+        public ThreadSafeObservableCollection<NavItem> FilteredNavItems { get; } = new();
+
+        NavItem? _selectedNavItem;
+        public NavItem? SelectedNavItem
+        {
+            get => _selectedNavItem;
+            set
+            {
+                if (Set(ref _selectedNavItem, value) && value != null && value.Index != _selectedNavIndex)
+                    SelectedNavIndex = value.Index;
+            }
+        }
+
+        string _navSearchText = "";
+        public string NavSearchText
+        {
+            get => _navSearchText;
+            set
+            {
+                if (Set(ref _navSearchText, value))
+                {
+                    OnPropertyChanged(nameof(HasNavSearch));
+                    ApplyNavFilter();
+                }
+            }
+        }
+        public bool HasNavSearch => !string.IsNullOrWhiteSpace(NavSearchText);
+        public bool HasVisibleNavItems => FilteredNavItems.Count > 0;
+        public string NavSearchPlaceholder => LocalizationService.T("nav.search_placeholder");
+        public string NavNoResults => LocalizationService.T("nav.no_results");
+        public string NavClearSearchLabel => LocalizationService.T("nav.clear_search");
+        public string LogCountText => LogLines.Count == 0 ? "" : $"({LogLines.Count})";
         
         // ECC ViewModel - shared with ECCView for bilingual support
         public ECCViewModel ECCViewModel { get; }
@@ -87,11 +130,12 @@ namespace CursorSetupWpf.ViewModels
 
         // Strings (bound directly, updated when culture changes)
         public string Str(string key) => LocalizationService.T(key);
-        public string VersionChip => "v4.7.0";
+        public string VersionChip => "v4.10.0";
 
         // Backing fields for localized strings (required for OnPropertyChanged to work in WPF)
         // Initialize all at once to reduce code duplication
         string _installPageTitle = "", _installPageSubtitle = "", _installButtonText = "";
+        string _installPreflightTitle = "", _installPreflightHint = "";
         string _languageLabel = "", _windowTitle = "", _appBrand = "", _appBrandSubtitle = "";
         string _safetyTitle = "", _safetyBody = "", _safetyBadge = "", _operationalLogLabel = "";
         string _vibeCoderTitle = "", _mcpTitle = "", _mcpSubtitle = "", _mcpSyncAllLabel = "", _mcpCheckStatusLabel = "";
@@ -182,6 +226,8 @@ namespace CursorSetupWpf.ViewModels
         public string BtnSelectAll { get => _btnSelectAll; set => Set(ref _btnSelectAll, value); }
         public string BtnDeselectAll { get => _btnDeselectAll; set => Set(ref _btnDeselectAll, value); }
         public string InstallPageTitle { get => _installPageTitle; set => Set(ref _installPageTitle, value); }
+        public string InstallPreflightTitle { get => _installPreflightTitle; set => Set(ref _installPreflightTitle, value); }
+        public string InstallPreflightHint { get => _installPreflightHint; set => Set(ref _installPreflightHint, value); }
         public string InstallPageSubtitle { get => _installPageSubtitle; set => Set(ref _installPageSubtitle, value); }
         public string InstallLocationLabel { get => _installLocationLabel; set => Set(ref _installLocationLabel, value); }
         public string InstallLocationHint { get => _installLocationHint; set => Set(ref _installLocationHint, value); }
@@ -502,8 +548,8 @@ namespace CursorSetupWpf.ViewModels
             LocalizationService.T("mcp.config_path", Installer.GetMcpConfigPath(SelectedAgent?.Agent ?? TargetAgent.Cursor));
 
         // ============ Updates-specific computed properties ============
-        public string CurrentVersion { get; } = "v4.7.0";
-        string _latestVersion = "v4.7.0";
+        public string CurrentVersion { get; } = "v4.10.0";
+        string _latestVersion = "v4.10.0";
         public string LatestVersion { get => _latestVersion; set => Set(ref _latestVersion, value); }
         bool _hasUpdate;
         public bool HasUpdate { get => _hasUpdate; set => Set(ref _hasUpdate, value); }
@@ -616,6 +662,8 @@ namespace CursorSetupWpf.ViewModels
             // Install page
             InstallPageTitle = LocalizationService.T("install.page_title");
             InstallPageSubtitle = LocalizationService.T("install.page_subtitle");
+            InstallPreflightTitle = LocalizationService.T("install.preflight_title");
+            InstallPreflightHint = LocalizationService.T("install.preflight_hint");
             InstallLocationLabel = LocalizationService.T("install.location");
             InstallLocationHint = LocalizationService.T("install.location_hint");
             InstallBrowseLabel = LocalizationService.T("install.browse");
@@ -894,6 +942,7 @@ namespace CursorSetupWpf.ViewModels
 
         string _guidePreflightStatus = "";
         public string GuidePreflightStatus { get => _guidePreflightStatus; set => Set(ref _guidePreflightStatus, value); }
+        public string GuidePreflightActionLabel => LocalizationService.T("guide.action_preflight");
 
         // Framework commands
         public ICommand StartDashboardCommand { get; }
@@ -926,22 +975,27 @@ namespace CursorSetupWpf.ViewModels
         {
             // Subscribe to culture changes for automatic UI refresh
             LocalizationService.CultureChanged += RefreshStrings;
+            LogLines.CollectionChanged += (_, _) =>
+            {
+                OnPropertyChanged(nameof(LogCountText));
+                OnPropertyChanged(nameof(LatestLogLine));
+            };
             
             // Nav items (0 to 14)
-            NavItems.Add(new NavItem { Icon = "\uE8B7", TitleKey = "tab.install", Index = 0 });
-            NavItems.Add(new NavItem { Icon = "\uE748", TitleKey = "tab.agents", Index = 1 });
-            NavItems.Add(new NavItem { Icon = "\uE943", TitleKey = "tab.components", Index = 2 });
-            NavItems.Add(new NavItem { Icon = "\uE713", TitleKey = "tab.advanced", Index = 3 });
-            NavItems.Add(new NavItem { Icon = "\uE768", TitleKey = "tab.hooks", Index = 4 });
-            NavItems.Add(new NavItem { Icon = "\uE74C", TitleKey = "tab.utilities", Index = 5 });
-            NavItems.Add(new NavItem { Icon = "\uE945", TitleKey = "tab.mcp", Index = 6 });
-            NavItems.Add(new NavItem { Icon = "\uE756", TitleKey = "tab.framework", Index = 7 });
-            NavItems.Add(new NavItem { Icon = "\uE768", TitleKey = "tab.project_runner", Index = 8 });
-            NavItems.Add(new NavItem { Icon = "\uE8A5", TitleKey = "tab.script_generator", Index = 9 });
-            NavItems.Add(new NavItem { Icon = "\uE897", TitleKey = "tab.ecc", Index = 10 });
+            NavItems.Add(new NavItem { Icon = "\uE8B7", TitleKey = "tab.install", Index = 0, IsSectionStart = true, Shortcut = "Ctrl+1" });
+            NavItems.Add(new NavItem { Icon = "\uE748", TitleKey = "tab.agents", Index = 1, Shortcut = "Ctrl+2" });
+            NavItems.Add(new NavItem { Icon = "\uE943", TitleKey = "tab.components", Index = 2, IsSectionStart = true, Shortcut = "Ctrl+3" });
+            NavItems.Add(new NavItem { Icon = "\uE713", TitleKey = "tab.advanced", Index = 3, Shortcut = "Ctrl+4" });
+            NavItems.Add(new NavItem { Icon = "\uE768", TitleKey = "tab.hooks", Index = 4, Shortcut = "Ctrl+5" });
+            NavItems.Add(new NavItem { Icon = "\uE74C", TitleKey = "tab.utilities", Index = 5, IsSectionStart = true, Shortcut = "Ctrl+6" });
+            NavItems.Add(new NavItem { Icon = "\uE945", TitleKey = "tab.mcp", Index = 6, Shortcut = "Ctrl+7" });
+            NavItems.Add(new NavItem { Icon = "\uE756", TitleKey = "tab.framework", Index = 7, IsSectionStart = true, Shortcut = "Ctrl+8" });
+            NavItems.Add(new NavItem { Icon = "\uE768", TitleKey = "tab.project_runner", Index = 8, Shortcut = "Ctrl+9" });
+            NavItems.Add(new NavItem { Icon = "\uE8A5", TitleKey = "tab.script_generator", Index = 9, Shortcut = "Ctrl+0" });
+            NavItems.Add(new NavItem { Icon = "\uE897", TitleKey = "tab.ecc", Index = 10, IsSectionStart = true });
             NavItems.Add(new NavItem { Icon = "\uE895", TitleKey = "tab.backup", Index = 11 });
             NavItems.Add(new NavItem { Icon = "\uE777", TitleKey = "tab.updates", Index = 12 });
-            NavItems.Add(new NavItem { Icon = "\uE713", TitleKey = "tab.settings", Index = 13 });
+            NavItems.Add(new NavItem { Icon = "\uE713", TitleKey = "tab.settings", Index = 13, IsSectionStart = true });
             NavItems.Add(new NavItem { Icon = "\uE82D", TitleKey = "tab.guide", Index = 14 });
             
             _settings.Load();
@@ -962,6 +1016,8 @@ namespace CursorSetupWpf.ViewModels
             // Set language AFTER initial strings are loaded
             _selectedLanguage = _languages.FirstOrDefault(l => l.Code.Equals(preferredLang, StringComparison.OrdinalIgnoreCase)) ?? _languages.First();
             LocalizationService.SetCulture(_selectedLanguage.Code);
+            ApplyNavFilter();
+            SelectedNavItem = NavItems[0];
             
             // Initialize Commands
             BrowseCommand = new RelayCommand(Browse);
@@ -1057,6 +1113,13 @@ namespace CursorSetupWpf.ViewModels
                 LogLines.Clear();
                 OnPropertyChanged(nameof(LatestLogLine));
             });
+            CopyLogCommand = new RelayCommand(CopyLog);
+            ClearNavSearchCommand = new RelayCommand(_ => NavSearchText = "");
+            GoToPageCommand = new RelayCommand(param =>
+            {
+                if (param != null && int.TryParse(param.ToString(), out int index))
+                    NavigateTo(index);
+            });
 
             // Initialize agents
             InitializeAgents();
@@ -1113,6 +1176,7 @@ namespace CursorSetupWpf.ViewModels
             ResetSteps();
             SeedChangelog();
             _categoriesLoadTask = LoadCategoriesAsync();
+            _ = RunGuidePreflightAsync();
             RefreshBackups();
             LoadThemes();
         }
@@ -1370,8 +1434,51 @@ namespace CursorSetupWpf.ViewModels
 
         void NavigateTo(int index)
         {
+            if (HasNavSearch)
+                NavSearchText = "";
             SelectedNavIndex = index;
             LogLines.Add($"[NAV] Opened setup step {index + 1}");
+        }
+
+        void ApplyNavFilter()
+        {
+            string query = NavSearchText.Trim();
+            FilteredNavItems.Clear();
+            foreach (var item in NavItems)
+            {
+                if (query.Length == 0 ||
+                    item.Title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    item.Shortcut.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    FilteredNavItems.Add(item);
+                }
+            }
+            OnPropertyChanged(nameof(HasVisibleNavItems));
+            var current = NavItems.FirstOrDefault(item => item.Index == _selectedNavIndex);
+            if (current != null && FilteredNavItems.Contains(current) && !ReferenceEquals(_selectedNavItem, current))
+                SelectedNavItem = current;
+        }
+
+        void CopyLog(object? _)
+        {
+            try
+            {
+                var lines = new List<string>
+                {
+                    $"VibeCode Enterprise Framework {VersionChip}",
+                    $"Target: {InstallPath}",
+                    $"Vibe Coder: {SelectedAgent?.DisplayName ?? "unknown"}",
+                    $"Status: {StatusText}",
+                    "",
+                };
+                lines.AddRange(LogLines);
+                Clipboard.SetText(string.Join(Environment.NewLine, lines));
+                _toast.Success(LocalizationService.T("log.title"), LocalizationService.T("log.copied"));
+            }
+            catch (Exception ex)
+            {
+                _toast.Error(LocalizationService.T("log.title"), ex.Message);
+            }
         }
 
         async Task RunGuidePreflightAsync()
@@ -1594,6 +1701,24 @@ namespace CursorSetupWpf.ViewModels
             ChangelogEntries.Clear();
             ChangelogEntries.Add(new ChangelogEntry
             {
+                Version = "v4.10.0",
+                Date = new DateTime(2026, 11, 25),
+                Description = "Added enterprise AI chatbot, web reasoning, and project audit skills; synced MCP template/codegraph registration; refreshed installer packaging with accurate archive metadata."
+            });
+            ChangelogEntries.Add(new ChangelogEntry
+            {
+                Version = "v4.9.0",
+                Date = new DateTime(2026, 11, 25),
+                Description = "Repaired MCP registrations: codegraph now uses the local vibe framework server, stale 1devtool entry removed, and shared MCP template keeps both changes for future installs."
+            });
+            ChangelogEntries.Add(new ChangelogEntry
+            {
+                Version = "v4.8.0",
+                Date = new DateTime(2026, 11, 25),
+                Description = "Polished setup UX: searchable/grouped navigation with keyboard shortcuts, package readiness card, and copy/clear diagnostics in the operational log."
+            });
+            ChangelogEntries.Add(new ChangelogEntry
+            {
                 Version = "v4.7.0",
                 Date = new DateTime(2026, 11, 25),
                 Description = "Repaired MCP packaging and registration: Pinterest and file-ops scripts, REA fallback, Playwright browser MCP, and safe skip for missing claude-mem entrypoints."
@@ -1762,6 +1887,11 @@ namespace CursorSetupWpf.ViewModels
             OnPropertyChanged(nameof(InstallSurfaceHint));
             foreach (var nav in NavItems)
                 nav.RefreshTitle();
+            ApplyNavFilter();
+            OnPropertyChanged(nameof(NavSearchPlaceholder));
+            OnPropertyChanged(nameof(NavNoResults));
+            OnPropertyChanged(nameof(NavClearSearchLabel));
+            OnPropertyChanged(nameof(GuidePreflightActionLabel));
             OnPropertyChanged(nameof(CanInstall));
             OnPropertyChanged(nameof(StatusText));
             OnPropertyChanged(nameof(SummaryText));
@@ -1772,6 +1902,8 @@ namespace CursorSetupWpf.ViewModels
             OnPropertyChanged(nameof(InstallForAllAgentsLabel));
             OnPropertyChanged(nameof(McpLastSyncLabel));
             OnPropertyChanged(nameof(LogToggleButtonText));
+            OnPropertyChanged(nameof(LogCopyLabel));
+            OnPropertyChanged(nameof(LogClearLabel));
             OnPropertyChanged(nameof(LatestLogLine));
             
             // Refresh all bound UI elements
@@ -2268,6 +2400,8 @@ namespace CursorSetupWpf.ViewModels
         public string TitleKey { get; set; } = "";
         public string Title => LocalizationService.T(TitleKey);
         public int Index { get; set; }
+        public bool IsSectionStart { get; set; }
+        public string Shortcut { get; set; } = "";
 
         /// <summary>
         /// Notifies WPF that the Title property has changed so bindings refresh

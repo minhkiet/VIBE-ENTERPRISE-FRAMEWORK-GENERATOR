@@ -16,6 +16,40 @@
                        FontFamily="{StaticResource UIFont}" FontSize="14"
                        Foreground="{StaticResource Neutral500Brush}" Margin="0,0,0,28"/>
 
+            <!-- === Package readiness card === -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Width="36" Height="36" CornerRadius="10"
+                            Background="{StaticResource Indigo50Brush}"
+                            VerticalAlignment="Center" Margin="0,0,14,0">
+                        <TextBlock Text="&#xE7C5;" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="16" Foreground="{StaticResource Indigo600Brush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding InstallPreflightTitle}"
+                                   FontFamily="{StaticResource UIFont}" FontSize="15"
+                                   FontWeight="SemiBold" Foreground="{StaticResource Slate900Brush}"/>
+                        <TextBlock Text="{Binding GuidePreflightStatus}"
+                                   FontFamily="{StaticResource UIFont}" FontSize="12"
+                                   Foreground="{StaticResource Indigo600Brush}" Margin="0,2,0,0"/>
+                        <TextBlock Text="{Binding InstallPreflightHint}"
+                                   FontFamily="{StaticResource UIFont}" FontSize="11"
+                                   Foreground="{StaticResource Neutral500Brush}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <Button Grid.Column="2"
+                            Content="{Binding GuidePreflightActionLabel}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding RunGuidePreflightCommand}"
+                            VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
             <!-- === Path Card ===
                  evondevKit Card: white bg, subtle border, NO shadow, 16px radius -->
             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">

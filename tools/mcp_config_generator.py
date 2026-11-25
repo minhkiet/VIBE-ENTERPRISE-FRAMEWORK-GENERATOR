@@ -80,6 +80,9 @@ class McpConfigGenerator:
         # Image search is a baseline capability across vibe tools; register the
         # vendored Pinterest MCP unless explicitly removed by the caller.
         self.add_pinterest()
+        # Code graph is a baseline capability; use the vendored framework
+        # server instead of relying on a globally installed `codegraph` CLI.
+        self.add_codegraph()
 
     def _resolve_python_cmd(self, python_cmd: Optional[str], target: str) -> str:
         """Resolve python command, handling Windows execution alias avoidance for Cursor."""
@@ -290,6 +293,22 @@ class McpConfigGenerator:
             description="File Operations MCP - search, read, copy and manage workspace files",
         ).to_dict()
 
+    def add_codegraph(self):
+        """Add local code graph MCP server backed by the vibe framework."""
+        mcp_dir = self.workspace_root / "mcp"
+        server_script = mcp_dir / "framework_server.py"
+        if not server_script.exists():
+            return
+
+        workspace = self._to_target_path(self.workspace_root)
+        self.config.mcpServers["codegraph"] = McpServer(
+            command=self.python_cmd,
+            args=[self._to_target_path(server_script)],
+            cwd=workspace,
+            env={"PYTHONPATH": workspace},
+            description="Code Graph MCP - scan project dependencies and find related files",
+        ).to_dict()
+
     def add_gflow(self, read_only: bool = False):
         """Add gflow-cli MCP server for Google Flow image/video generation.
 
@@ -472,7 +491,7 @@ def main():
         dest="add_servers",
         choices=[
             "vercel", "browser", "zalo", "telegram", "facebook", "google",
-            "shopee", "rea", "pinterest", "file-ops", "gflow", "gflow-readonly",
+            "shopee", "rea", "pinterest", "file-ops", "codegraph", "gflow", "gflow-readonly",
         ],
         help="Add additional MCP servers"
     )
@@ -502,6 +521,7 @@ def main():
         print("  rea      - REA Reverse Engineer Anything")
         print("  pinterest - Pinterest image/video search and download")
         print("  file-ops - Local workspace file operations")
+        print("  codegraph - Local code graph backed by vibe framework")
         print("  gflow    - gflow-cli MCP for Google Flow image/video generation")
         print("  gflow-readonly - gflow-cli MCP without spend/generate tools")
         return 0
@@ -532,6 +552,8 @@ def main():
                 generator.add_pinterest()
             elif server == "file-ops":
                 generator.add_file_ops()
+            elif server == "codegraph":
+                generator.add_codegraph()
             elif server == "gflow":
                 generator.add_gflow()
             elif server == "gflow-readonly":

@@ -1,10 +1,26 @@
 # Vibe Enterprise Framework - Changelog
 
-> **Version:** 4.5.0 | **Date:** 2026-10-13
+> **Version:** 4.10.0 | **Date:** 2026-11-25
+
+---
+
+## v4.10.0 — 2026-11-25
+
+### Setup GUI & Packaging Refresh
+
+Bump installer, packager, localization, and MCP template to 4.10.0. The ZIP metadata now reports the real archive file count after MCP scripts and the `vibe_framework` package are staged, so the published build descriptor always matches the delivered artifact.
+
+### Framework Content Sync
+
+Adds `enterprise-ai-chatbot-integration`, `web-ai-reasoning-integration`, and `project-audit-optimizer` skills across `.agents`, `.cursor`, `.claude`, and `vibe-code-framework`, with registry/SKILL-INDEX updates. MCP template keeps `codegraph` wired to the local framework server for multi-vibe tools.
 
 ---
 
 ## Unreleased — 2026-11-24
+
+### GPT-AI Integration Skills (additive import)
+
+Bổ sung hai skill từ `web-ai-assistant-full-kit`: `enterprise-ai-chatbot-integration` cho chatbot CRM/HRM/Sales/Support và `web-ai-reasoning-integration` cho suy luận AI có tra cứu Internet, phân tích tệp đính kèm. Nội dung được mirrors sang `.cursor/skills`, `.agents/skills`, `.claude/skills`, đăng ký trong skill registry/SKILL-INDEX và ghi provenance dạng `SOT-EXTERNAL`/`PENDING_REVIEW`. Không ghi đè skill có sẵn; dữ liệu nhạy cảm vẫn phải được ẩn danh trước khi gọi API công cộng.
 
 ### gflow-cli MCP Integration
 

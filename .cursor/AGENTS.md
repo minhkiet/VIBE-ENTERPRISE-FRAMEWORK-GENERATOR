@@ -503,6 +503,8 @@ Agent Personas work with the existing skill system. Skills are located in `.curs
 | `security-review` | Security vulnerabilities | security-pre/post |
 | `vietnam-payment-review` | MoMo, SePay, PayOS | payment-pre/post |
 | `video-generation` | AI video, short video (9:16) | video-pre/post |
+| `enterprise-ai-chatbot-integration` | GPT-AI chatbot for CRM, HRM, Sales, Support | — |
+| `web-ai-reasoning-integration` | Web-grounded AI reasoning with attachment analysis | — |
 | `karpathy-coding` | All coding tasks (overlay) | karpathy-pre/post |
 | `ponytail` | Efficiency, minimize code | ponytail-pre/post |
 | `test-analysis` | Testing, verification, QA | test-pre/post |

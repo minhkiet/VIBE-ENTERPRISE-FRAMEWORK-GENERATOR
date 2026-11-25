@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CursorSetupWpf.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b1c8ba3ffedaf724dad83d9e3f91763a1889da78")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d9b262c1887f9854a51bc3515f2f9fa1aea8a15f")]
 [assembly: System.Reflection.AssemblyProductAttribute("CursorSetupWpf.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CursorSetupWpf.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

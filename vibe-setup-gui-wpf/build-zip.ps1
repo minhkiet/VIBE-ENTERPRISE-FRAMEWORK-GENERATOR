@@ -25,7 +25,7 @@ $LegacyOutputZip = Join-Path $BuildDir "cursor-setup.zip"
 $TempZip = Join-Path $env:TEMP "cursor-setup-build-$([System.Guid]::NewGuid().ToString('N')).zip"
 
 Write-Host ""
-Write-Host "VibeCode Enterprise Framework Packager v4.7.0" -ForegroundColor Cyan
+Write-Host "VibeCode Enterprise Framework Packager v4.10.0" -ForegroundColor Cyan
 Write-Host "===========================================" -ForegroundColor Cyan
 Write-Host "Config : $Config" -ForegroundColor Gray
 Write-Host "Source : $SourceDir"
@@ -147,7 +147,7 @@ try {
         Copy-Item -Path $mcpSource -Destination (Join-Path $stagedMcp $mcp) -Recurse -Force
         Write-Host "  [OK] Staged MCP: $mcp" -ForegroundColor Green
     }
-    foreach ($mcpScript in @("pinterest_server.py", "file_server.py")) {
+    foreach ($mcpScript in @("pinterest_server.py", "file_server.py", "framework_server.py", "mcp_runtime.py")) {
         $mcpScriptSource = Join-Path $RepoRoot "mcp\$mcpScript"
         if (-not (Test-Path $mcpScriptSource -PathType Leaf)) {
             Write-Host "  [WARN] MCP script not found: $mcpScriptSource" -ForegroundColor Yellow
@@ -237,6 +237,8 @@ $dirs = ($topLevel | Where-Object { $_.PSIsContainer }).Count
 $files = ($topLevel | Where-Object { -not $_.PSIsContainer }).Count
 Write-Host "  Directories: $dirs"
 Write-Host "  Files: $files"
+$archiveTotal = @(Get-ChildItem -Path $verifyDir -Recurse -File -Force -ErrorAction SilentlyContinue).Count
+Write-Host "  Archive files: $archiveTotal"
 
 # Check expected categories
 $expectedDirs = @("agents", "commands", "hooks", "knowledge", "memory", "mcp", "prompts", "references", "rules", "scripts", "skills", "templates", "tools", "workflows", "vibe_framework")
@@ -259,7 +261,7 @@ $metaPath = Join-Path $BuildDir "cursor-setup-build.json"
 
 # Try to read version from .csproj dynamically, fall back to hardcoded
 $csprojPath = Join-Path $ScriptDir "CursorSetupWpf.csproj"
-$version = "4.7.0"
+$version = "4.10.0"
 if (Test-Path $csprojPath) {
     $csprojContent = Get-Content $csprojPath -Raw
     if ($csprojContent -match '<Version>(.*?)</Version>') {
@@ -275,7 +277,7 @@ $meta = [ordered]@{
     output      = $OutputZip
     size_bytes  = $zipSize
     size_mb     = $zipSizeMB
-    total_files = $total
+    total_files = $archiveTotal
     categories  = $stats
 }
 $meta | ConvertTo-Json -Depth 5 | Out-File -FilePath $metaPath -Encoding UTF8
@@ -296,7 +298,7 @@ foreach ($mcp in $mcps) {
         Write-Host "  [SKIP] $mcp not found in archive (will be added during build)" -ForegroundColor Gray
     }
 }
-foreach ($mcpScript in @("pinterest_server.py", "file_server.py")) {
+foreach ($mcpScript in @("pinterest_server.py", "file_server.py", "framework_server.py", "mcp_runtime.py")) {
     $mcpScriptPath = Join-Path $verifyDir "mcp\$mcpScript"
     if (Test-Path $mcpScriptPath -PathType Leaf) {
         Write-Host "  [OK] $mcpScript present in archive" -ForegroundColor Green

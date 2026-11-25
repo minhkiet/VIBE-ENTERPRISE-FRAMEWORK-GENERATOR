@@ -328,6 +328,8 @@
 | `ai-knowledge` | `rules/ai-knowledge.mdc` | RAG, Vector Search, pgvector |
 | `weknora-agent` | `skills/weknora-agent/` | ReAct autonomous reasoning |
 | `weknora-kb` | `skills/weknora-kb/` | RAG implementation, hybrid search |
+| `enterprise-ai-chatbot-integration` | `skills/enterprise-ai-chatbot-integration/` | GPT-AI chatbot for CRM, HRM, Sales, Support |
+| `web-ai-reasoning-integration` | `skills/web-ai-reasoning-integration/` | Web-grounded reasoning + attachment analysis |
 
 ---
 

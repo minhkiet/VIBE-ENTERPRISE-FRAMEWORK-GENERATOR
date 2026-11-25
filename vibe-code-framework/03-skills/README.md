@@ -1,6 +1,6 @@
 # Skills Index
 
-> **Version:** 1.0.0 | **Updated:** 2026-10-09
+> **Version:** 1.1.0 | **Updated:** 2026-11-25
 
 ---
 
@@ -43,6 +43,9 @@ skill-name/
 | [fullstack-web](./fullstack-web/) | Fullstack web app (ASP.NET + React) |
 | [security-scan](./security-scan/) | Security vulnerability scan |
 | [frontend-design](./frontend-design/) | External frontend design skill; pending owner review |
+| [project-audit-optimizer](./project-audit-optimizer/) | Rà soát codebase theo coverage ledger; tối ưu UI/UX, responsive/chống che khuất, hiệu năng, ổn định và thị giác có bằng chứng |
+| [enterprise-ai-chatbot-integration](./enterprise-ai-chatbot-integration/) | Tích hợp AI chatbot GPT-AI cho CRM, HRM, Sales và hỗ trợ hệ thống |
+| [web-ai-reasoning-integration](./web-ai-reasoning-integration/) | AI reasoning có web grounding và phân tích tệp đính kèm cho ứng dụng web/doanh nghiệp |
 | [browser-testing-with-devtools](./browser-testing-with-devtools/) | E2E browser testing & automated UI verification |
 | [code-simplification](./code-simplification/) | Code refactoring & YAGNI complexity reduction |
 | [context-engineering](./context-engineering/) | Context window optimization & relevance filtering |
@@ -55,6 +58,15 @@ skill-name/
 | [sepay](./sepay/) | SePay Vietnam Payments (Bank Transfer, Webhook, VietQR, VA, e-Invoice, Gateway, CLI/MCP) |
 | [payos](./payos/) | PayOS Open Banking Gateway API v2 (VietQR, Payment Links, Webhook Checksum HMAC-SHA256) |
 | [pay2s](./pay2s/) | Pay2S Vietnam Bank Webhook & Recipient Name Lookup (Bearer Token Auth, Tra cứu chủ tài khoản) |
+
+### External bundle: Claude-BugHunter
+
+Nguồn: [elementalsouls/Claude-BugHunter](https://github.com/elementalsouls/Claude-BugHunter), pinned tại commit `6a2153d9932adf41fa4d7f5dee626047c5005a83`.
+84 skill đã được import append-only vào Resource Hub và nhân bản sang `.cursor/skills`, `.agents/skills`, `.claude/skills`; không skill cũ nào bị ghi đè.
+Chỉ dùng cho bug bounty / external red-team trong phạm vi được cấp quyền.
+Provenance: `vibe-code-framework/00-governance/records/external-skills.json`.
+License và attribution: `vibe-code-framework/00-governance/records/licenses/claude-bughunter/`.
+Trạng thái governance: `SOT-EXTERNAL`, `NOT_GRANTED`, `PENDING_REVIEW`.
 
 ## Ánh xạ sang Cursor
 

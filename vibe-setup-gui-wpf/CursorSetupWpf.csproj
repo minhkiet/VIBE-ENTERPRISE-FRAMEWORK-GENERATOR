@@ -7,9 +7,9 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);CS8632</NoWarn>
     <AssemblyName>VibeCodeEnterpriseFramework</AssemblyName>
-    <Version>4.7.0</Version>
-    <FileVersion>4.7.0</FileVersion>
-    <AssemblyVersion>4.7.0</AssemblyVersion>
+    <Version>4.10.0</Version>
+    <FileVersion>4.10.0</FileVersion>
+    <AssemblyVersion>4.10.0</AssemblyVersion>
     <Company>VibeCode</Company>
     <Product>VibeCode Enterprise Framework</Product>
     <Description>Setup tool for VibeCode Enterprise Framework with MCP tools integration</Description>
@@ -63,7 +63,7 @@
       SkipUnchangedFiles="false" />
   </Target>
   <!-- Generate the payload archive next to the published GUI so startup scans are clean. -->
-  <Target Name="BuildPayloadZipAfterPublish" AfterTargets="Publish">
+  <Target Name="BuildPayloadZipAfterPublish" AfterTargets="Publish" Condition="'$(SkipPayloadZip)' != 'true'">
     <Exec
       Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\build-zip.ps1&quot; -Config $(Configuration)"
       EnvironmentVariables="VIBE_PUBLISH_DIR=$(PublishDir)" />

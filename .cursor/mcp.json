@@ -98,6 +98,17 @@
         "PYTHONPATH": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR"
       },
       "description": "Pinterest MCP - image/video search, extraction and safe download"
+    },
+    "file-ops": {
+      "command": "C:\\Python312\\python.exe",
+      "args": [
+        "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR\\mcp\\file_server.py"
+      ],
+      "cwd": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR",
+      "env": {
+        "PYTHONPATH": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR"
+      },
+      "description": "File Operations MCP - search, read, copy and manage workspace files"
     }
   },
   "version": "1.0",

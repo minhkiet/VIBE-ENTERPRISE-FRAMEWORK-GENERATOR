@@ -272,7 +272,7 @@ namespace CursorSetupWpf.Models
                 Description = "Browser automation via CDP — navigate, snapshot, click, type, screenshot",
                 ServerKey = "browser",
                 Command = "npx",
-                Args = "-y @browsermcp/mcp",
+                Args = "-y @playwright/mcp@0.0.86",
                 ToolCount = 15
             },
             new McpServerStatus
@@ -296,6 +296,17 @@ namespace CursorSetupWpf.Models
                 Args = "mcp/pinterest_server.py",
                 Cwd = "${CURSOR_PROJECT}",
                 ToolCount = 12
+            },
+            new McpServerStatus
+            {
+                Name = "file-ops",
+                DisplayName = "File Operations MCP",
+                Description = "Safe workspace file operations — search, read, copy, move and path helpers",
+                ServerKey = "file-ops",
+                Command = "python",
+                Args = "mcp/file_server.py",
+                Cwd = "${CURSOR_PROJECT}",
+                ToolCount = 9
             }
         };
     }

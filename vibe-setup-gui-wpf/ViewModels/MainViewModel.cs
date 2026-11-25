@@ -87,7 +87,7 @@ namespace CursorSetupWpf.ViewModels
 
         // Strings (bound directly, updated when culture changes)
         public string Str(string key) => LocalizationService.T(key);
-        public string VersionChip => "v4.5.0";
+        public string VersionChip => "v4.7.0";
 
         // Backing fields for localized strings (required for OnPropertyChanged to work in WPF)
         // Initialize all at once to reduce code duplication
@@ -502,8 +502,8 @@ namespace CursorSetupWpf.ViewModels
             LocalizationService.T("mcp.config_path", Installer.GetMcpConfigPath(SelectedAgent?.Agent ?? TargetAgent.Cursor));
 
         // ============ Updates-specific computed properties ============
-        public string CurrentVersion { get; } = "v4.5.0";
-        string _latestVersion = "v4.5.0";
+        public string CurrentVersion { get; } = "v4.7.0";
+        string _latestVersion = "v4.7.0";
         public string LatestVersion { get => _latestVersion; set => Set(ref _latestVersion, value); }
         bool _hasUpdate;
         public bool HasUpdate { get => _hasUpdate; set => Set(ref _hasUpdate, value); }
@@ -1592,6 +1592,12 @@ namespace CursorSetupWpf.ViewModels
         void SeedChangelog()
         {
             ChangelogEntries.Clear();
+            ChangelogEntries.Add(new ChangelogEntry
+            {
+                Version = "v4.7.0",
+                Date = new DateTime(2026, 11, 25),
+                Description = "Repaired MCP packaging and registration: Pinterest and file-ops scripts, REA fallback, Playwright browser MCP, and safe skip for missing claude-mem entrypoints."
+            });
             ChangelogEntries.Add(new ChangelogEntry
             {
                 Version = "v4.6.0",

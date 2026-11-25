@@ -272,6 +272,19 @@ namespace CursorSetupWpf.Services
                     "download_video", "get_pin_video"
                 }
             ),
+            // file-ops - vendored local file operations MCP (standalone script in mcp/)
+            (
+                "file-ops",
+                null,
+                null,
+                "File Operations MCP",
+                "Safe workspace file operations: search, read, copy, move and path helpers.",
+                new[]
+                {
+                    "ensure_directory", "find_files", "copy_file", "move_file",
+                    "read_file", "write_file", "list_directory"
+                }
+            ),
         };
 
         static readonly string[] LegacyMcpKeys = { "framework", "autopilot", "memory" };
@@ -972,7 +985,7 @@ namespace CursorSetupWpf.Services
                         servers[entry.ServerKey] = new Dictionary<string, object>
                         {
                             ["command"] = "npx",
-                            ["args"] = new[] { "-y", "@modelcontextprotocol/server-browser" },
+                            ["args"] = new[] { "-y", "@playwright/mcp@0.0.86" },
                             ["description"] = entry.Description,
                         };
                     }
@@ -991,19 +1004,38 @@ namespace CursorSetupWpf.Services
                                 reaCwd = Path.Combine(parentDir, "tools", "rea");
                             }
                         }
-                        servers[entry.ServerKey] = new Dictionary<string, object>
+                        if (File.Exists(reaScript))
                         {
-                            ["command"] = "node",
-                            ["args"] = new[] { reaScript, "mcp" },
-                            ["cwd"] = reaCwd,
-                            ["description"] = entry.Description,
-                        };
+                            servers[entry.ServerKey] = new Dictionary<string, object>
+                            {
+                                ["command"] = "node",
+                                ["args"] = new[] { reaScript, "mcp" },
+                                ["cwd"] = reaCwd,
+                                ["description"] = entry.Description,
+                            };
+                        }
+                        else
+                        {
+                            // The packaged CLI may be absent in portable installs; use the
+                            // published package instead of writing a dead node path.
+                            servers[entry.ServerKey] = new Dictionary<string, object>
+                            {
+                                ["command"] = "npx",
+                                ["args"] = new[] { "-y", "rea-agents", "mcp" },
+                                ["description"] = entry.Description,
+                            };
+                        }
                     }
                     // claude-mem MCP - node based
                     else if (entry.ServerKey == "claude-mem")
                     {
                         string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                         string memScript = Path.Combine(userProfile, ".claude", "plugins", "marketplaces", "thedotmack", "claude-mem", "dist", "mcp-server.js");
+                        if (!File.Exists(memScript))
+                        {
+                            // Never register a server whose entrypoint does not exist.
+                            continue;
+                        }
                         string dbPath = Path.Combine(userProfile, ".claude-mem", "claude-mem.db");
                         servers[entry.ServerKey] = new Dictionary<string, object>
                         {
@@ -1020,10 +1052,34 @@ namespace CursorSetupWpf.Services
                     else if (entry.ServerKey == "pinterest")
                     {
                         string pinterestScript = Path.Combine(installPath, "mcp", "pinterest_server.py");
+                        if (!File.Exists(pinterestScript))
+                        {
+                            continue;
+                        }
                         servers[entry.ServerKey] = new Dictionary<string, object>
                         {
                             ["command"] = "python",
                             ["args"] = new[] { pinterestScript },
+                            ["cwd"] = installPath,
+                            ["env"] = new Dictionary<string, string>
+                            {
+                                ["PYTHONPATH"] = installPath
+                            },
+                            ["description"] = entry.Description,
+                        };
+                    }
+                    // file-ops MCP - standalone vendored script, not a python -m package
+                    else if (entry.ServerKey == "file-ops")
+                    {
+                        string fileOpsScript = Path.Combine(installPath, "mcp", "file_server.py");
+                        if (!File.Exists(fileOpsScript))
+                        {
+                            continue;
+                        }
+                        servers[entry.ServerKey] = new Dictionary<string, object>
+                        {
+                            ["command"] = "python",
+                            ["args"] = new[] { fileOpsScript },
                             ["cwd"] = installPath,
                             ["env"] = new Dictionary<string, string>
                             {

@@ -8,11 +8,28 @@ from tools.mcp_config_generator import McpConfigGenerator
 
 
 class TestImageMcpConfig(unittest.TestCase):
+    def test_generator_includes_file_ops_by_default(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        generator = McpConfigGenerator(str(repo_root), target="cursor")
+
+        self.assertIn("file-ops", generator.config.to_dict()["mcpServers"])
+
     def test_generator_includes_pinterest_by_default(self):
         repo_root = Path(__file__).resolve().parent.parent
         generator = McpConfigGenerator(str(repo_root), target="cursor")
 
         self.assertIn("pinterest", generator.config.to_dict()["mcpServers"])
+
+    def test_generator_adds_file_ops_server(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        generator = McpConfigGenerator(str(repo_root), target="cursor")
+
+        generator.add_file_ops()
+
+        server = generator.config.to_dict()["mcpServers"]["file-ops"]
+        self.assertEqual(server["command"], generator.python_cmd)
+        self.assertTrue(any("file_server.py" in arg for arg in server["args"]))
+        self.assertIn("PYTHONPATH", server["env"])
 
     def test_generator_browser_server_uses_supported_pinned_package(self):
         repo_root = Path(__file__).resolve().parent.parent
@@ -79,6 +96,24 @@ class TestImageMcpConfig(unittest.TestCase):
             self.assertIn('args = ["mcp", "run"]', text)
             self.assertIn("[mcp_servers.existing]", text)
             self.assertIn("[features]", text)
+
+    def test_packager_stages_all_local_mcp_scripts(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        script = (repo_root / "vibe-setup-gui-wpf" / "build-zip.ps1").read_text(encoding="utf-8")
+
+        self.assertIn("pinterest_server.py", script)
+        self.assertIn("file_server.py", script)
+        self.assertIn("tools\\rea", script)
+
+    def test_installer_uses_supported_browser_package_and_file_ops(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        installer = (repo_root / "vibe-setup-gui-wpf" / "Services" / "Installer.cs").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("@playwright/mcp@0.0.86", installer)
+        self.assertNotIn("@modelcontextprotocol/server-browser", installer)
+        self.assertIn('entry.ServerKey == "file-ops"', installer)
 
 
 if __name__ == "__main__":

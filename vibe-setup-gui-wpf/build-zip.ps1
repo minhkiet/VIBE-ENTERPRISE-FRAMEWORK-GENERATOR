@@ -25,7 +25,7 @@ $LegacyOutputZip = Join-Path $BuildDir "cursor-setup.zip"
 $TempZip = Join-Path $env:TEMP "cursor-setup-build-$([System.Guid]::NewGuid().ToString('N')).zip"
 
 Write-Host ""
-Write-Host "VibeCode Enterprise Framework Packager v4.5.0" -ForegroundColor Cyan
+Write-Host "VibeCode Enterprise Framework Packager v4.7.0" -ForegroundColor Cyan
 Write-Host "===========================================" -ForegroundColor Cyan
 Write-Host "Config : $Config" -ForegroundColor Gray
 Write-Host "Source : $SourceDir"
@@ -147,6 +147,25 @@ try {
         Copy-Item -Path $mcpSource -Destination (Join-Path $stagedMcp $mcp) -Recurse -Force
         Write-Host "  [OK] Staged MCP: $mcp" -ForegroundColor Green
     }
+    foreach ($mcpScript in @("pinterest_server.py", "file_server.py")) {
+        $mcpScriptSource = Join-Path $RepoRoot "mcp\$mcpScript"
+        if (-not (Test-Path $mcpScriptSource -PathType Leaf)) {
+            Write-Host "  [WARN] MCP script not found: $mcpScriptSource" -ForegroundColor Yellow
+            continue
+        }
+        Copy-Item -LiteralPath $mcpScriptSource -Destination $stagedMcp -Force
+        Write-Host "  [OK] Staged MCP script: $mcpScript" -ForegroundColor Green
+    }
+    $reaSource = Join-Path $RepoRoot "tools\rea"
+    if (Test-Path $reaSource -PathType Container) {
+        $reaDest = Join-Path $StagingDir "tools\rea"
+        Copy-Item -Path $reaSource -Destination $reaDest -Recurse -Force
+        Get-ChildItem -Path $reaDest -Recurse -Directory -Force -Filter "__pycache__" |
+            ForEach-Object { Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction SilentlyContinue }
+        Write-Host "  [OK] Staged REA CLI/MCP" -ForegroundColor Green
+    } else {
+        Write-Host "  [WARN] REA source not found: $reaSource" -ForegroundColor Yellow
+    }
     # Do not ship interpreter caches in a distributable archive. They are
     # machine-specific, can be stale, and needlessly inflate the package.
     Get-ChildItem -Path $stagedMcp -Recurse -Directory -Force -Filter "__pycache__" |
@@ -220,7 +239,7 @@ Write-Host "  Directories: $dirs"
 Write-Host "  Files: $files"
 
 # Check expected categories
-$expectedDirs = @("agents", "commands", "hooks", "knowledge", "memory", "mcp", "prompts", "references", "rules", "scripts", "skills", "templates", "workflows", "vibe_framework")
+$expectedDirs = @("agents", "commands", "hooks", "knowledge", "memory", "mcp", "prompts", "references", "rules", "scripts", "skills", "templates", "tools", "workflows", "vibe_framework")
 $missingDirs = @()
 foreach ($d in $expectedDirs) {
     if (-not (Test-Path (Join-Path $verifyDir $d))) {
@@ -240,7 +259,7 @@ $metaPath = Join-Path $BuildDir "cursor-setup-build.json"
 
 # Try to read version from .csproj dynamically, fall back to hardcoded
 $csprojPath = Join-Path $ScriptDir "CursorSetupWpf.csproj"
-$version = "4.5.0"
+$version = "4.7.0"
 if (Test-Path $csprojPath) {
     $csprojContent = Get-Content $csprojPath -Raw
     if ($csprojContent -match '<Version>(.*?)</Version>') {
@@ -276,6 +295,19 @@ foreach ($mcp in $mcps) {
     } else {
         Write-Host "  [SKIP] $mcp not found in archive (will be added during build)" -ForegroundColor Gray
     }
+}
+foreach ($mcpScript in @("pinterest_server.py", "file_server.py")) {
+    $mcpScriptPath = Join-Path $verifyDir "mcp\$mcpScript"
+    if (Test-Path $mcpScriptPath -PathType Leaf) {
+        Write-Host "  [OK] $mcpScript present in archive" -ForegroundColor Green
+    } else {
+        Write-Host "  [WARN] $mcpScript missing from archive" -ForegroundColor Yellow
+    }
+}
+if (Test-Path (Join-Path $verifyDir "tools\rea\scripts\rea.mjs") -PathType Leaf) {
+    Write-Host "  [OK] REA MCP entrypoint present in archive" -ForegroundColor Green
+} else {
+    Write-Host "  [WARN] REA MCP entrypoint missing from archive" -ForegroundColor Yellow
 }
 
 # Cleanup only the temporary verification directory after every check has run.

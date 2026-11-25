@@ -922,7 +922,7 @@ namespace CursorSetupWpf.Services
                 new() {
                     Id = "mcp-browser", Title = "Install Browser MCP", IsSelected = true,
                     Lines = new List<ScriptLine> {
-                        new() { Command = "npx", Args = "-y @modelcontextprotocol/server-browser", Comment = "Install Browser MCP via npx" }
+                        new() { Command = "npx", Args = "-y @playwright/mcp@0.0.86", Comment = "Install pinned Playwright Browser MCP via npx" }
                     }
                 },
                 new() {

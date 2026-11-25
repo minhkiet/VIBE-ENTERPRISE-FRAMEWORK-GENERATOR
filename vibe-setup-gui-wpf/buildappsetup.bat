@@ -1,7 +1,7 @@
 @echo off
 REM ============================================================
 REM buildappsetup.bat
-REM VibeCode Enterprise Framework - Build Script v4.5.0
+REM VibeCode Enterprise Framework - Build Script v4.7.0
 REM ============================================================
 REM Purpose:
 REM   1. Check prerequisites (dotnet, scripts, MCP tools)
@@ -70,7 +70,7 @@ set "OUTPUT_DIR=%PROJECT_DIR%\bin\%BUILD_CONFIG%\%TFM%\%BUILD_RID%\publish"
 REM ----- Header -----
 echo.
 echo ===========================================================
-echo  VibeCode Enterprise Framework - Build Script v4.5.0
+echo  VibeCode Enterprise Framework - Build Script v4.7.0
 echo ===========================================================
 echo  Project   : %PROJECT_DIR%
 echo  Config    : %BUILD_CONFIG%
@@ -174,16 +174,20 @@ echo.
 echo   [OK] Publish succeeded (self-contained, single-file).
 echo.
 
-REM ----- Step 3: Create ZIP -----
-REM build-zip.ps1 stages MCP tools directly and never modifies host .cursor.
-echo [STEP 3] Creating vibe-setup.zip...
+REM ----- Step 3: Verify payload ZIP -----
+REM dotnet publish already runs build-zip.ps1 through its post-publish target.
+REM Only regenerate here when a custom publish skipped that target.
+echo [STEP 3] Verifying vibe-setup.zip...
 echo.
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "%ZIP_SCRIPT%" -Config %BUILD_CONFIG%
-if errorlevel 1 (
-    echo.
-    echo [ERROR] ZIP creation failed!
-    exit /b 1
+if not exist "%OUTPUT_DIR%\vibe-setup.zip" (
+    echo [INFO] Payload ZIP not found; creating it with build-zip.ps1...
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%ZIP_SCRIPT%" -Config %BUILD_CONFIG%
+    if errorlevel 1 (
+        echo.
+        echo [ERROR] ZIP creation failed!
+        exit /b 1
+    )
 )
 echo.
 

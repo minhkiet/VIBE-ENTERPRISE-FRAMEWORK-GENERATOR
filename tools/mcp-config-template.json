@@ -43,12 +43,30 @@
       "args": ["D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR\\tools\\rea\\scripts\\rea.mjs", "mcp"],
       "cwd": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR\\tools\\rea",
       "description": "REA - Reverse Engineer Anything: native binaries, Electron/JS, APK, WASM, runtime via MCP"
+    },
+    "pinterest": {
+      "command": "C:\\Python312\\python.exe",
+      "args": ["D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR\\mcp\\pinterest_server.py"],
+      "cwd": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR",
+      "env": {
+        "PYTHONPATH": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR"
+      },
+      "description": "Pinterest MCP - image/video search, extraction and safe download"
+    },
+    "file-ops": {
+      "command": "C:\\Python312\\python.exe",
+      "args": ["D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR\\mcp\\file_server.py"],
+      "cwd": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR",
+      "env": {
+        "PYTHONPATH": "D:\\PROJECTS\\CURSORS\\CURSOR ENTERPRISE FRAMEWORK GENERATOR"
+      },
+      "description": "File Operations MCP - search, read, copy and manage workspace files"
     }
   },
   "_meta": {
     "version": "1.0.0",
-    "framework_version": "3.1.0",
-    "total_tools": 27,
-    "description": "Vibe Enterprise Framework MCP stack - framework registry + autopilot + memory management + REA"
+    "framework_version": "4.7.0",
+    "total_tools": 48,
+    "description": "Vibe Enterprise Framework MCP stack - registry + autopilot + memory + REA + Pinterest image search + file operations"
   }
 }

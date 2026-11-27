@@ -9,6 +9,13 @@
   },
   "plugins": [
     {
+      "name": "superpowers",
+      "source": "./plugins/superpowers",
+      "description": "Superpowers software development methodology for coding agents: Brainstorming, Planning, TDD, Systematic Debugging, and Multi-Agent Collaboration (v7.0.2).",
+      "category": "development",
+      "tags": ["skills", "tdd", "debugging", "collaboration", "superpowers"]
+    },
+    {
       "name": "hackingtool",
       "source": "./plugins/hackingtool",
       "description": "183+ pentesting and OSINT tools (nmap, nuclei, amass, subfinder, httpx, sherlock, maigret, trufflehog, sqlmap, impacket, and more) wired into Claude Code. Runs locally on any OS via native Bash, WSL, or purpose-built Docker images — Claude picks the right backend and image automatically.",

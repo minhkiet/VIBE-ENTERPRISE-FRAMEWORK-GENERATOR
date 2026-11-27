@@ -58,6 +58,22 @@ These skills require no modification across agents:
 | perf-optimization | ✅ | ✅ | ✅ | ✅ |
 | stability | ✅ | ✅ | ✅ | ✅ |
 | data-quality | ✅ | ✅ | ✅ | ✅ |
+| **Superpowers v7.0.2 (obra/superpowers)** | | | | |
+| using-superpowers | ✅ | ✅ | ✅ | ✅ |
+| brainstorming | ✅ | ✅ | ✅ | ✅ |
+| writing-plans | ✅ | ✅ | ✅ | ✅ |
+| executing-plans | ✅ | ✅ | ✅ | ✅ |
+| subagent-driven-development | ✅ | ✅ | ✅ | ✅ |
+| dispatching-parallel-agents | ✅ | ✅ | ✅ | ✅ |
+| test-driven-development | ✅ | ✅ | ✅ | ✅ |
+| systematic-debugging | ✅ | ✅ | ✅ | ✅ |
+| verification-before-completion | ✅ | ✅ | ✅ | ✅ |
+| requesting-code-review | ✅ | ✅ | ✅ | ✅ |
+| receiving-code-review | ✅ | ✅ | ✅ | ✅ |
+| using-git-worktrees | ✅ | ✅ | ✅ | ✅ |
+| finishing-a-development-branch | ✅ | ✅ | ✅ | ✅ |
+| writing-skills | ✅ | ✅ | ✅ | ✅ |
+| diagnosing-superpowers | ✅ | ✅ | ✅ | ✅ |
 
 ### Agent-Specific Skills
 

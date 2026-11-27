@@ -1,0 +1,9 @@
+{
+  "name": "superpowers",
+  "version": "7.0.2",
+  "displayName": "Superpowers",
+  "description": "Software development methodology for coding agents: Brainstorming, Planning, TDD, Systematic Debugging, and Multi-Agent Collaboration",
+  "author": "Jesse Vincent / Vibe Enterprise Framework",
+  "homepage": "https://github.com/obra/superpowers",
+  "keywords": ["superpowers", "tdd", "debugging", "brainstorming", "planning", "subagents", "worktrees"]
+}

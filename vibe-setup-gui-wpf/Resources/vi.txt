@@ -1,6 +1,6 @@
 app.title=VibeCode Enterprise Framework - Trình cài đặt
 app.title_short=VibeCode Enterprise Framework
-app.subtitle=v4.10.0 - Công cụ phân phối framework cho nhiều Vibe Coder
+app.subtitle=v4.11.0 - Công cụ phân phối framework cho nhiều Vibe Coder
 safety.title=Ranh giới đóng gói an toàn
 safety.body=Chọn target rõ ràng để phân phối tài nguyên. Đóng gói không sửa .cursor và không thay thế approval governance.
 safety.badge=BLOCKED · cần phê duyệt governance

@@ -32,6 +32,21 @@
 - **[§X] Line-by-Line Audit**: Read actual code changes before declaring the task complete.
 - **[§Y] Constructive Response**: Summarize key decisions concisely and link modified files.
 
+## 2.1 Superpowers v7.0.2 Methodology Lifecycle
+The framework fully integrates the 15 core skills from `obra/superpowers` (v7.0.2):
+1. **Meta Bootstrap (`using-superpowers`)**: Check and invoke relevant skills BEFORE any response or action.
+2. **Intent & Design (`brainstorming`)**: Draw out requirements and validate tradeoffs before building.
+3. **Workspace Isolation (`using-git-worktrees`)**: Create dedicated branches and clean baselines.
+4. **Decomposition (`writing-plans`)**: Break plans into 2-5 minute bite-sized tasks with full file paths.
+5. **Orchestration (`subagent-driven-development` / `executing-plans`)**: Dispatch subagents with two-stage reviews.
+6. **Concurrency (`dispatching-parallel-agents`)**: Execute independent slices in parallel.
+7. **Discipline (`test-driven-development`)**: Watch test fail first, write minimal passing code, refactor.
+8. **Root Cause Analysis (`systematic-debugging`)**: 4-phase debugging (Reproduce -> Isolate -> Hypothesize -> Verify).
+9. **Peer Review (`requesting-code-review` / `receiving-code-review`)**: Rigorous maker vs verifier reviews.
+10. **Delivery Gate (`verification-before-completion`)**: Prove correctness with test logs before completion.
+11. **Branch Finalization (`finishing-a-development-branch`)**: Clean merge, PR, and worktree teardown.
+12. **Diagnosis & Quality (`diagnosing-superpowers` / `writing-skills`)**: Analyze session transcripts and author compliant skills.
+
 ## 3. Tool-Specific Runtime Guidelines
 - Follow standard `SKILL.md` format (lowercase hyphenated name, clear description) for all agent skills.
 - Zero tolerance for UTF-8 BOM, unquoted YAML colons, or duplicate skill names across workspaces.

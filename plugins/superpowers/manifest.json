@@ -1,0 +1,50 @@
+{
+  "name": "vibe-framework-superpowers",
+  "version": "7.0.2",
+  "description": "Superpowers agentic software development methodology: Brainstorming, Planning, TDD, Systematic Debugging, and Multi-Agent Collaboration",
+  "author": "Jesse Vincent / Vibe Enterprise Framework",
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:vibe-framework.superpowers.bootstrap",
+    "onCommand:vibe-framework.superpowers.brainstorm",
+    "onCommand:vibe-framework.superpowers.plan",
+    "onCommand:vibe-framework.superpowers.tdd",
+    "onCommand:vibe-framework.superpowers.debug",
+    "onCommand:vibe-framework.superpowers.diagnose"
+  ],
+  "main": "index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vibe-framework.superpowers.bootstrap",
+        "title": "Superpowers: Initialize Session Bootstrap",
+        "category": "Superpowers"
+      },
+      {
+        "command": "vibe-framework.superpowers.brainstorm",
+        "title": "Superpowers: Brainstorming Requirements",
+        "category": "Superpowers"
+      },
+      {
+        "command": "vibe-framework.superpowers.plan",
+        "title": "Superpowers: Write Implementation Plan",
+        "category": "Superpowers"
+      },
+      {
+        "command": "vibe-framework.superpowers.tdd",
+        "title": "Superpowers: Enforce Test-Driven Development",
+        "category": "Superpowers"
+      },
+      {
+        "command": "vibe-framework.superpowers.debug",
+        "title": "Superpowers: Systematic Debugging (4-Phase)",
+        "category": "Superpowers"
+      },
+      {
+        "command": "vibe-framework.superpowers.diagnose",
+        "title": "Superpowers: Diagnose Session Behavior",
+        "category": "Superpowers"
+      }
+    ]
+  }
+}

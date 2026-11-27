@@ -25,7 +25,7 @@ $LegacyOutputZip = Join-Path $BuildDir "cursor-setup.zip"
 $TempZip = Join-Path $env:TEMP "cursor-setup-build-$([System.Guid]::NewGuid().ToString('N')).zip"
 
 Write-Host ""
-Write-Host "VibeCode Enterprise Framework Packager v4.10.0" -ForegroundColor Cyan
+Write-Host "VibeCode Enterprise Framework Packager v4.11.0" -ForegroundColor Cyan
 Write-Host "===========================================" -ForegroundColor Cyan
 Write-Host "Config : $Config" -ForegroundColor Gray
 Write-Host "Source : $SourceDir"
@@ -261,7 +261,7 @@ $metaPath = Join-Path $BuildDir "cursor-setup-build.json"
 
 # Try to read version from .csproj dynamically, fall back to hardcoded
 $csprojPath = Join-Path $ScriptDir "CursorSetupWpf.csproj"
-$version = "4.10.0"
+$version = "4.11.0"
 if (Test-Path $csprojPath) {
     $csprojContent = Get-Content $csprojPath -Raw
     if ($csprojContent -match '<Version>(.*?)</Version>') {

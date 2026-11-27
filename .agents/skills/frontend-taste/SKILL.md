@@ -21,6 +21,6 @@ Update your code to use:
 This alias is maintained for backward compatibility.
 The skill-registry will automatically redirect to the new name.
 
----
+***
 Auto-generated alias file
 Last updated: 2026-08-03

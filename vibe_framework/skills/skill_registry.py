@@ -164,6 +164,22 @@ class CrossAgentSkillRegistry:
         "data-quality",
         "code-graph-analysis",
         "karpathy",
+        # Superpowers v7.0.2 Methodology Skills
+        "using-superpowers",
+        "brainstorming",
+        "writing-plans",
+        "executing-plans",
+        "subagent-driven-development",
+        "dispatching-parallel-agents",
+        "test-driven-development",
+        "systematic-debugging",
+        "verification-before-completion",
+        "requesting-code-review",
+        "receiving-code-review",
+        "using-git-worktrees",
+        "finishing-a-development-branch",
+        "writing-skills",
+        "diagnosing-superpowers",
     ]
 
     # Agent-specific skill mappings - synchronized with TypeScript framework.ts
@@ -208,6 +224,22 @@ class CrossAgentSkillRegistry:
             # Meta
             "skill-installer",
             "full-output",
+            # Superpowers Methodology (v7.0.2)
+            "using-superpowers",
+            "brainstorming",
+            "writing-plans",
+            "executing-plans",
+            "subagent-driven-development",
+            "dispatching-parallel-agents",
+            "test-driven-development",
+            "systematic-debugging",
+            "verification-before-completion",
+            "requesting-code-review",
+            "receiving-code-review",
+            "using-git-worktrees",
+            "finishing-a-development-branch",
+            "writing-skills",
+            "diagnosing-superpowers",
         ],
         "codex": [
             # Core coding
@@ -227,6 +259,22 @@ class CrossAgentSkillRegistry:
             "data-quality",
             # Meta
             "full-output",
+            # Superpowers Methodology (v7.0.2)
+            "using-superpowers",
+            "brainstorming",
+            "writing-plans",
+            "executing-plans",
+            "subagent-driven-development",
+            "dispatching-parallel-agents",
+            "test-driven-development",
+            "systematic-debugging",
+            "verification-before-completion",
+            "requesting-code-review",
+            "receiving-code-review",
+            "using-git-worktrees",
+            "finishing-a-development-branch",
+            "writing-skills",
+            "diagnosing-superpowers",
         ],
         "claude-code": [
             # Core coding
@@ -246,6 +294,22 @@ class CrossAgentSkillRegistry:
             "data-quality",
             # Meta
             "full-output",
+            # Superpowers Methodology (v7.0.2)
+            "using-superpowers",
+            "brainstorming",
+            "writing-plans",
+            "executing-plans",
+            "subagent-driven-development",
+            "dispatching-parallel-agents",
+            "test-driven-development",
+            "systematic-debugging",
+            "verification-before-completion",
+            "requesting-code-review",
+            "receiving-code-review",
+            "using-git-worktrees",
+            "finishing-a-development-branch",
+            "writing-skills",
+            "diagnosing-superpowers",
         ],
         "grok": [
             # Core coding
@@ -261,6 +325,22 @@ class CrossAgentSkillRegistry:
             "perf-optimization",
             # Meta
             "full-output",
+            # Superpowers Methodology (v7.0.2)
+            "using-superpowers",
+            "brainstorming",
+            "writing-plans",
+            "executing-plans",
+            "subagent-driven-development",
+            "dispatching-parallel-agents",
+            "test-driven-development",
+            "systematic-debugging",
+            "verification-before-completion",
+            "requesting-code-review",
+            "receiving-code-review",
+            "using-git-worktrees",
+            "finishing-a-development-branch",
+            "writing-skills",
+            "diagnosing-superpowers",
         ],
     }
 
